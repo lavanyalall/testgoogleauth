@@ -1,21 +1,20 @@
 import './App.css';
 import { useState, useEffect } from 'react';
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { GoogleLogin } from "@react-oauth/google";
 import Web3 from "web3";
 import GoogleAuthMappingArtifact from "./GoogleAuthMapping.json";
 
-
 function App() {
 	const [web3, setWeb3] = useState(null);
 	const [contract, setContract] = useState(null);
-	const [googleId, setGoogleId] = useState("");
-	const [ethAccount, setEthAccount] = useState("");
+  const [googleId, setGoogleId] = useState(localStorage.getItem("googleId") || "");
+  const [ethAccount, setEthAccount] = useState(localStorage.getItem("ethAccount") || "");
 	const [status, setStatus] = useState("");
 	const [productName, setProductName] = useState("");
 	const [productQuantity, setProductQuantity] = useState("");
 	const [products, setProducts] = useState([]);
-	const [registeredEthAccount, setRegisteredEthAccount] = useState("");
+  const [registeredEthAccount, setRegisteredEthAccount] = useState(localStorage.getItem("registeredEthAccount") || "");
 
 	useEffect(() => {
 		const initBlockchain = async () => {
@@ -39,19 +38,27 @@ function App() {
 	
 		initBlockchain();
 	  }, []);
+  
+  useEffect(() => {
+	// Fetch products only if web3, contract, and Google ID are available
+	if (web3 && contract && googleId && registeredEthAccount) {
+	  fetchProducts();
+	}
+  }, [web3, contract, googleId, registeredEthAccount]);
+  
 	
 	const handleGoogleLoginSuccess = (response) => {
 	  try {
 		const decoded = jwtDecode(response.credential);
 		console.log(decoded); // Contains user info such as email, sub (Google ID), etc.
 		setGoogleId(decoded.sub); // 'sub' is the unique Google ID
+      localStorage.setItem("googleId", decoded.sub); // Save Google ID to localStorage
 		setStatus("Google login successful. You can now register or login.");
 	  } catch (error) {
 		console.error("Failed to decode token:", error);
 		setStatus("Google login failed. Please try again.");
 	  }
 	};
-	
 	
 	  const handleGoogleLoginFailure = (response) => {
 		console.error("Google login failed:", response);
@@ -68,16 +75,31 @@ function App() {
 		  return;
 		}
 	
-		setStatus("Registering user...");
+    setStatus("Checking user status...");
 		const googleIdHash = hashGoogleId(googleId);
 	
 		try {
+      // Check if the user is already registered
+      const isRegistered = await contract.methods.validateUser(googleIdHash).call();
+
+      if (isRegistered) {
+        // User is already registered, retrieve their Ethereum address
+        const ethAddress = await contract.methods.getUserAddress(googleIdHash).call();
+        setRegisteredEthAccount(ethAddress);
+        localStorage.setItem("registeredEthAccount", ethAddress); // Save to localStorage
+        setStatus("You are already registered! Ethereum account retrieved.");
+        return;
+      }
+
+      // Proceed with registration if user doesn't exist
+      setStatus("Registering user...");
 		  const accounts = await web3.eth.getAccounts();
 		  const fundingAccount = accounts[0]; // Ganache-funded account
 	
 		  // Create a new Ethereum account
 		  const newAccount = web3.eth.accounts.create();
 		  setEthAccount(newAccount.address);
+      localStorage.setItem("ethAccount", newAccount.address); // Save to localStorage
 	
 		  // Pre-fund the new account
 		  await web3.eth.sendTransaction({
@@ -113,8 +135,9 @@ function App() {
 		  if (isRegistered) {
 			const ethAddress = await contract.methods.getUserAddress(googleIdHash).call();
 			setRegisteredEthAccount(ethAddress);
+        localStorage.setItem("registeredEthAccount", ethAddress); // Save to localStorage
 			setStatus("Login successful! Ethereum account retrieved.");
-			fetchProducts()
+        fetchProducts();
 		  } else {
 			setStatus("No registration found for this Google account.");
 		  }
@@ -123,6 +146,15 @@ function App() {
 		  setStatus("Error during login. Check the console for details.");
 		}
 	  };
+
+  const logoutUser = () => {
+    localStorage.clear();
+    setGoogleId("");
+    setEthAccount("");
+    setRegisteredEthAccount("");
+    setProducts([]);
+    setStatus("Logged out successfully.");
+  };
 	
 	  const addProduct = async () => {
 		if (!productName || !productQuantity || isNaN(productQuantity) || productQuantity <= 0) {
@@ -136,7 +168,7 @@ function App() {
 	
 		  await contract.methods
 			.addProduct(productName, productQuantity)
-			.send({ from: currentAccount , gas: '210000'});
+        .send({ from: currentAccount, gas: '210000' });
 	
 		  setStatus("Product added successfully!");
 		  fetchProducts();
@@ -147,6 +179,11 @@ function App() {
 	  };
 	
 	  const fetchProducts = async () => {
+	if (!web3 || !contract) {
+	  console.error("Web3 or contract is not initialized.");
+	  return;
+	}
+  
 		try {
 		  const accounts = await web3.eth.getAccounts();
 		  const currentAccount = accounts[0];
@@ -163,11 +200,15 @@ function App() {
 	  return (
 		<div>
 		  <h1>Google Auth DApp</h1>
+      {!googleId ? (
 		  <GoogleLogin
 			buttonText="Login with Google"
 			onSuccess={handleGoogleLoginSuccess}
 			onFailure={handleGoogleLoginFailure}
 		  />
+      ) : (
+        <button onClick={logoutUser}>Logout</button>
+      )}
 		  <div>
 			<button onClick={registerUser}>Register</button>
 			<button onClick={loginUser}>Login</button>
