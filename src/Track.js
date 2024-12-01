@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom"
 import Web3 from "web3";
 import GoogleAuthMappingArtifact from './GoogleAuthMapping.json';
 
-function Track({ethAccount, contract}) {
+function Track({web3, ethAccount, contract}) {
     useEffect(() => {
-        loadWeb3();
+        // loadWeb3();
         loadBlockchaindata();
     }, [])
 
@@ -29,21 +29,21 @@ function Track({ethAccount, contract}) {
     const [TrackTillRMS, showTrackTillRMS] = useState(false);
     const [TrackTillOrdered, showTrackTillOrdered] = useState(false);
 
-    const loadWeb3 = async () => {
-        if (window.ethereum) {
-            window.web3 = new Web3(window.ethereum);
-            await window.ethereum.enable();
-        } else if (window.web3) {
-            window.web3 = new Web3(window.web3.currentProvider);
-        } else {
-            window.alert(
-                "Non-Ethereum browser detected. You should consider trying MetaMask!"
-            );
-        }
-    };
+    // const loadWeb3 = async () => {
+    //     if (window.ethereum) {
+    //         window.web3 = new Web3(window.ethereum);
+    //         await window.ethereum.enable();
+    //     } else if (window.web3) {
+    //         window.web3 = new Web3(window.web3.currentProvider);
+    //     } else {
+    //         window.alert(
+    //             "Non-Ethereum browser detected. You should consider trying MetaMask!"
+    //         );
+    //     }
+    // };
     const loadBlockchaindata = async () => {
         setloader(true);
-        const web3 = window.web3;
+        // const web3 = window.web3;
         const account = ethAccount;
         setCurrentaccount(account);
         const networkId = await web3.eth.net.getId();

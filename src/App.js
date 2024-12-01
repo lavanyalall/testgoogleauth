@@ -165,6 +165,7 @@ function App() {
 					path="/track"
 					element={
 						<Track
+						web3={web3}
 						ethAccount = {ethAccount}
 						contract = {contract}
 						/>

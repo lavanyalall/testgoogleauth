@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import GoogleAuthMappingArtifact from './GoogleAuthMapping.json';
-import Web3 from 'web3';
+// import Web3 from 'web3';
 import { useNavigate } from 'react-router-dom';
 
 
@@ -19,27 +19,35 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 	const SupplyChainABI = GoogleAuthMappingArtifact;
 
 	useEffect(() => {
-		loadWeb3();
-		loadBlockchaindata();
-		fetchRole();
-		fetchProducts();
+		const initializeDashboard = async () => {
+			try {
+			// 	await loadWeb3();
+				await loadBlockchaindata();
+				await fetchRole();
+				await fetchProducts();
+			} catch (error) {
+				console.error("Error initializing dashboard:", error);
+			}
+		};
+	
+		initializeDashboard();
 	}, []);
 
-	const loadWeb3 = async () => {
-		if (window.ethereum) {
-			window.web3 = new Web3(window.ethereum);
-			await window.ethereum.enable();
-		} else if (window.web3) {
-			window.web3 = new Web3(window.web3.currentProvider);
-		} else {
-			window.alert(
-				"Non-Ethereum browser detected. You should consider trying MetaMask!"
-			);
-		}
-	};
+	// const loadWeb3 = async () => {
+	// 	if (window.ethereum) {
+	// 		window.web3 = new Web3(window.ethereum);
+	// 		await window.ethereum.enable();
+	// 	} else if (window.web3) {
+	// 		window.web3 = new Web3(window.web3.currentProvider);
+	// 	} else {
+	// 		window.alert(
+	// 			"Non-Ethereum browser detected. You should consider trying MetaMask!"
+	// 		);
+	// 	}
+	// };
 	const loadBlockchaindata = async () => {
 		setloader(true);
-		const web3 = window.web3;
+		// const web3 = window.web3;
 		const account = ethAccount;
 		setCurrentaccount(account);
 		const networkId = await web3.eth.net.getId();
@@ -139,7 +147,9 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			const googleIdHash = web3.utils.sha3(googleId);
 			
 			const userRole = await contract.methods.getRole(googleIdHash).call();
+			console.log(userRole);
 			setRole(parseInt(userRole));
+			console.log(role);
 		} catch (error) {
 			console.error('Error fetching role:', error);
 		}
@@ -191,7 +201,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			<button onClick={logoutUser}>Logout</button>
 			<p>{status}</p>
 
-			{role === 1 && ( // Only manufacturers can add products
+			{role == 1 && ( // Only manufacturers can add products
 				<div>
 					<h3>Add Product</h3>
 					<form onSubmit={handleAddProduct}>
