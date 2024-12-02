@@ -344,7 +344,6 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 					<>
 						<h4 className='sub-heading'>Mark as sold</h4>
 						<form className='role-form' onSubmit={handlerSubmitSold}>
-						<label> Product ID</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitSold}>Sold</button>
 						</form>
