@@ -2,15 +2,16 @@ import React, { useEffect, useState } from 'react';
 import GoogleAuthMappingArtifact from './GoogleAuthMapping.json';
 // import Web3 from 'web3';
 import { useNavigate } from 'react-router-dom';
+import './Dashboard.css';
 
 
-function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, setStatus, logoutUser, status }) {
-	const [allProducts, setAllProducts] = useState([]);
-	const [userProducts, setUserProducts] = useState([]);
-	const [role, setRole] = useState(null);
+function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, setStatus, logoutUser, status, role, userProducts, allProducts }) {
+	// const [allProducts, setAllProducts] = useState([]);
+	// const [userProducts, setUserProducts] = useState([]);
+	// const [role, setRole] = useState(null);
 	const [newProduct, setNewProduct] = useState({ name: '', quantity: '', description: '' });
 	const [currentaccount, setCurrentaccount] = useState("");
-	const [loader, setloader] = useState(true);
+	const [loader, setloader] = useState(false);
 	const [SupplyChain, setSupplyChain] = useState();
 	const [PROD, setPROD] = useState();
 	const [ProdStage, setProdStage] = useState();
@@ -23,7 +24,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			try {
 			// 	await loadWeb3();
 				await loadBlockchaindata();
-				await fetchRole();
+			//  await fetchRole();
 				await fetchProducts();
 			} catch (error) {
 				console.error("Error initializing dashboard:", error);
@@ -45,8 +46,9 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 	// 		);
 	// 	}
 	// };
+
 	const loadBlockchaindata = async () => {
-		setloader(true);
+		// setloader(true);
 		// const web3 = window.web3;
 		const account = ethAccount;
 		setCurrentaccount(account);
@@ -66,7 +68,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			}
 			setPROD(prod);
 			setProdStage(prodStage);
-			setloader(false);
+			// setloader(false);
 		}
 		else {
 			window.alert('The smart contract is not deployed to current network')
@@ -81,7 +83,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			await contract.methods.RMSsupply(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Raw materials for Product ${ID} successfully!`);
+			setStatus(`Raw materials for Product ${ID} supplied successfully!`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -141,27 +143,27 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 
 	}
 
-	const fetchRole = async () => {
-		try {
-			console.log(googleId);
-			const googleIdHash = web3.utils.sha3(googleId);
+	// const fetchRole = async () => {
+	// 	try {
+	// 		console.log(googleId);
+	// 		const googleIdHash = web3.utils.sha3(googleId);
 			
-			const userRole = await contract.methods.getRole(googleIdHash).call();
-			console.log(userRole);
-			setRole(parseInt(userRole));
-			console.log(role);
-		} catch (error) {
-			console.error('Error fetching role:', error);
-		}
-	};
+	// 		const userRole = await contract.methods.getRole(googleIdHash).call();
+	// 		console.log(userRole);
+	// 		setRole(parseInt(userRole));
+	// 		console.log(role);
+	// 	} catch (error) {
+	// 		console.error('Error fetching role:', error);
+	// 	}
+	// };
 
 	const fetchProducts = async () => {
 		try {
 			const allProductsList = await contract.methods.getAllProducts().call();
-			setAllProducts(allProductsList);
+			allProducts = allProductsList;
 
 			const userProductsList = await contract.methods.getUserProducts(ethAccount).call();
-			setUserProducts(userProductsList);
+			userProducts = userProductsList;
 		} catch (error) {
 			console.error('Error fetching products:', error);
 			setStatus('Error fetching products. Please check the console.');
@@ -182,7 +184,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 
 			await contract.methods
 				.addProduct(newProduct.name, parseInt(newProduct.quantity), emailId, newProduct.description)
-				.send({ from: ethAccount, gas: 300000 });
+				.send({ from: ethAccount, gas: 3000000 });
 
 			setStatus('Product added successfully!');
 			fetchProducts();
@@ -193,42 +195,49 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 	};
 
 	return (
-		<div>
-			<h2>Dashboard</h2>
+		<div className='main'>
+			<h2 className='page-heading'>Dashboard</h2>
+			<div className='welcome-message'>
 			<p>Welcome, {username}</p>
-			<p>Your Ethereum Address: {ethAccount}</p>
-			<button onClick={() => navigate('/')}>Home</button>
-			<button onClick={logoutUser}>Logout</button>
-			<p>{status}</p>
+			<p ><p style={{"font-weight": "bold"}} > Your Ethereum Address: </p>{ethAccount}</p>
+			</div>
+			<div className="button-container">
+			<button onClick={() => navigate('/')} type="submit" className='home'>Home</button>
+			<button onClick={logoutUser} type="submit" className='logout'>Logout</button>
+			</div>
+			<p className='status'>Status: {status}</p>
 
 			{role == 1 && ( // Only manufacturers can add products
 				<div>
-					<h3>Add Product</h3>
-					<form onSubmit={handleAddProduct}>
+					<h3 className='sub-heading'>Add Product</h3>
+					<form onSubmit={handleAddProduct} className='form'>
+						<label> Product Name</label>
 						<input
 							type="text"
-							placeholder="Product Name"
+							placeholder="Enter Product Name"
 							value={newProduct.name}
 							onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
 						/>
+						<label> Quantity</label>
 						<input
 							type="number"
-							placeholder="Quantity"
+							placeholder="Enter Quantity"
 							value={newProduct.quantity}
 							onChange={(e) => setNewProduct({ ...newProduct, quantity: e.target.value })}
 						/>
+						<label> Product Description</label>
 						<input
 							type="text"
-							placeholder="Product Description"
+							placeholder="Enter Product Description"
 							value={newProduct.description}
-							onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+							onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
 						/>
 						<button type="submit">Add Product</button>
 					</form>
 				</div>
 			)}
 
-			<h3>All Products</h3>
+			{allProducts.length ? (<><h3 className='sub-heading'>All Products</h3>
 			<table>
 				<thead>
 					<tr>
@@ -250,11 +259,11 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 						</tr>
 					))}
 				</tbody>
-			</table>
-
-			{role === 1 && (
+			</table></>) : (<></>)
+}
+			{role == 1 && (userProducts.length ? (
 				<>
-					<h3>Your Products</h3>
+					<h3 className='sub-heading'>Your Products</h3>
 					<table>
 						<thead>
 							<tr>
@@ -274,15 +283,15 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 								</tr>
 							))}
 						</tbody>
-					</table></>
+					</table></>) : (<></>)
 			)}
 
 			{
 				role == 0 && (
 					<>
-						<h4 className='section-heading'>Supply Raw Materials</h4>
+						<h4 className='sub-heading'>Supply Raw Materials</h4>
 						<form className='role-form' onSubmit={handlerSubmitRMSsupply}>
-							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
+							<input className="form-control-sm " type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitRMSsupply}>Supply</button>
 						</form>
 					</>
@@ -292,7 +301,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			{
 				role == 1 && (
 					<>
-						<h4 className='section-heading'>Manufacture</h4>
+						<h4 className='sub-heading sub-heading'>Manufacture</h4>
 						<form className='role-form' onSubmit={handlerSubmitManufacturing}>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitManufacturing}>Manufacture</button>
@@ -305,8 +314,9 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			{
 				role == 2 && (
 					<>
-						<h4 className='section-heading'>Distribute</h4>
+						<h4 className='sub-heading'>Distribute</h4>
 						<form className='role-form' onSubmit={handlerSubmitDistribute}>
+						<label> Product Name</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitDistribute}>Distribute</button>
 						</form>
@@ -318,8 +328,9 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			{
 				role == 3 && (
 					<>
-						<h4 className='section-heading'>Retail</h4>
+						<h4 className='sub-heading'>Retail</h4>
 						<form className='role-form' onSubmit={handlerSubmitRetail}>
+						<label> Product Name</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitRetail}>Retail</button>
 						</form>
@@ -330,8 +341,9 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			{
 				role == 3 && (
 					<>
-						<h4 className='section-heading'>Mark as sold</h4>
+						<h4 className='sub-heading'>Mark as sold</h4>
 						<form className='role-form' onSubmit={handlerSubmitSold}>
+						<label> Product ID</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitSold}>Sold</button>
 						</form>

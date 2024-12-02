@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './Register.css';
 
-function Register({ web3, contract, googleId, emailId, setUsername, setEthAccount, setIsRegistered, setStatus }) {
+function Register({ web3, contract, googleId, emailId, setUsername, setEthAccount, setIsRegistered, setStatus, setRole, setAllProducts, setUserProducts }) {
   const [formData, setFormData] = useState({ username: '', location: '', role: '' });
   const navigate = useNavigate();
 
@@ -31,7 +32,7 @@ function Register({ web3, contract, googleId, emailId, setUsername, setEthAccoun
       await web3.eth.sendTransaction({
         from: fundingAccount,
         to: newAccount,
-        value: web3.utils.toWei('1', 'ether'),
+        value: web3.utils.toWei('0.1', 'ether'),
       });
 
       // Register user on the blockchain
@@ -42,9 +43,11 @@ function Register({ web3, contract, googleId, emailId, setUsername, setEthAccoun
       setUsername(formData.username);
       setEthAccount(newAccount);
       setIsRegistered(true);
+	  setRole(parseInt(formData.role));
       localStorage.setItem('username', formData.username);
       localStorage.setItem('ethAccount', newAccount);
-      setStatus('Registration successful! Redirecting...');
+	  localStorage.setItem('role',parseInt(formData.role));
+      setStatus('Registration successful!');
       navigate('/dashboard');
     } catch (error) {
       console.error('Error during registration:', error);
@@ -54,19 +57,19 @@ function Register({ web3, contract, googleId, emailId, setUsername, setEthAccoun
 
   return (
     <div>
-      <h2>Register</h2>
+      <h2 className='heading'>Register</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Username:</label>
-          <input type="text" name="username" value={formData.username} onChange={handleChange} required />
+          <label>Username: <span className='required'>*</span></label>
+          <input type="text" name="username" value={formData.username} onChange={handleChange} placeholder='Please enter your name' required />
         </div>
         <div>
-          <label>Location:</label>
-          <input type="text" name="location" value={formData.location} onChange={handleChange} required />
+          <label>Location: <span className='required'>*</span></label>
+          <input type="text" name="location" value={formData.location} onChange={handleChange} placeholder='Please enter your location' required />
         </div>
         <div>
-          <label>Role:</label>
-          <div>
+          <label>Role: <span className='required'>*</span></label>
+          <div className='radio-group'>
             <label>
               <input type="radio" name="role" value="0" onChange={handleChange} /> Raw Material Supplier
             </label>
@@ -81,6 +84,7 @@ function Register({ web3, contract, googleId, emailId, setUsername, setEthAccoun
             </label>
           </div>
         </div>
+		<span className='required'>* indicates required fields</span>
         <button type="submit">Register</button>
       </form>
     </div>

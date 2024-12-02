@@ -1,5 +1,3 @@
-// App.js
-import './App.css';
 import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
@@ -9,6 +7,7 @@ import GoogleAuthMappingArtifact from './GoogleAuthMapping.json';
 import Register from './Register';
 import Dashboard from './Dashboard';
 import Track from './Track';
+import './App.css';
 
 function App() {
 	const [web3, setWeb3] = useState(null);
@@ -19,6 +18,9 @@ function App() {
 	const [username, setUsername] = useState(localStorage.getItem('username') || '');
 	const [status, setStatus] = useState('');
 	const [isRegistered, setIsRegistered] = useState(false);
+	const [role, setRole] = useState(parseInt(localStorage.getItem('role')) || null);
+	const [userProducts, setUserProducts] = useState(JSON.parse(localStorage.getItem('userProducts')) || []);
+	const [allProducts, setAllProducts] = useState(JSON.parse(localStorage.getItem('allProducts')) || []);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -50,6 +52,19 @@ function App() {
 		}
 	}, [googleId, contract]);
 
+	const getProducts = async (ethAccount) => {
+		const addedUserProducts = await contract.methods.getUserProducts(ethAccount).call();
+		const addedAllProducts = await contract.methods.getAllProducts().call();
+
+		setAllProducts(addedAllProducts);
+		setUserProducts(addedUserProducts);
+		localStorage.setItem('userProducts', JSON.stringify(addedUserProducts));
+		console.log(localStorage.getItem('userProducts'));
+
+		localStorage.setItem('allProducts', JSON.stringify(addedAllProducts));
+		console.log(localStorage.getItem('allProducts'));
+	}
+
 	const checkRegistration = async () => {
 		const googleIdHash = web3.utils.sha3(googleId);
 		try {
@@ -58,10 +73,14 @@ function App() {
 			if (isRegistered) {
 				const registeredUsername = await contract.methods.getUsername(googleIdHash).call();
 				const registeredAccount = await contract.methods.getUserAddress(googleIdHash).call();
+				const registeredRole = await contract.methods.getRole(googleIdHash).call();
 				setUsername(registeredUsername);
 				setEthAccount(registeredAccount);
+				setRole(registeredRole);
 				localStorage.setItem('username', registeredUsername);
 				localStorage.setItem('ethAccount', registeredAccount);
+				localStorage.setItem('role', registeredRole);
+				await getProducts(registeredAccount);
 			}
 		} catch (err) {
 			console.error('Error checking registration:', err);
@@ -93,6 +112,9 @@ function App() {
 		setEmailId('');
 		setEthAccount('');
 		setUsername('');
+		setRole(null);
+		setUserProducts([]);
+		setAllProducts([]);
 		setIsRegistered(false);
 		navigate('/');
 		setStatus('Logged out successfully.');
@@ -105,27 +127,29 @@ function App() {
 					path="/"
 					element={
 						<div>
-							<h1>Google Auth DApp</h1>
-							<p>Status: {status}</p>
-							{!googleId ? (
-								<GoogleLogin
-									buttonText="Sign in with Google"
-									onSuccess={handleGoogleLoginSuccess}
-									onFailure={handleGoogleLoginFailure}
-								/>
-							) : (
-								<button onClick={logoutUser}>Logout</button>
-							)}
-							<div>
-								{!isRegistered && googleId && (
-									<button onClick={() => navigate('/register')}>Register</button>
+							<h1>CraftChain Commerce</h1>
+							<h4>E-Marketplace for Artisans using Blockchain</h4>
+							<p>Discover a world of unique, handmade creations directly from talented artisans across the globe. We are committed to empowering artisans by providing a platform that celebrates their creativity and craftsmanship. Every purchase supports these skilled creators and helps preserve traditional arts. Explore our curated collection of authentic, handmade  products crafted by skilled artisans. Each piece is a work of art, carrying the story and tradition of its maker. Support artisans and find something truly special. Behind every product is a story, a craft, and a talented artisan who brings it to life. At CraftChain Commerce, we celebrate the incredible skills and creativity of artisans from around the world. Each piece you see here is the result of dedication, passion, and tradition passed down through generations.</p>
+							<p className='status'>Status: {status}</p>
+							<div className='btn-cont'>
+								{!googleId ? (
+									<GoogleLogin
+										buttonText="Sign in with Google"
+										onSuccess={handleGoogleLoginSuccess}
+										onFailure={handleGoogleLoginFailure}
+									/>
+								) : (
+									<button onClick={logoutUser}>Logout</button>
 								)}
-								{isRegistered && googleId && (
-									<>
-										<button onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
-										<button onClick={() => navigate('/track')}>Track a Product</button>
-									</>
-								)}
+									{!isRegistered && googleId && (
+										<button onClick={() => navigate('/register')}>Register</button>
+									)}
+									{isRegistered && googleId && (
+										<>
+											<button onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
+											<button onClick={() => navigate('/track')}>Track a Product</button>
+										</>
+									)}
 							</div>
 						</div>
 					}
@@ -142,6 +166,9 @@ function App() {
 							setEthAccount={setEthAccount}
 							setIsRegistered={setIsRegistered}
 							setStatus={setStatus}
+							setRole={setRole}
+							setAllProducts={setAllProducts}
+							setUserProducts={setUserProducts}
 						/>
 					}
 				/>
@@ -158,6 +185,9 @@ function App() {
 							setStatus={setStatus}
 							logoutUser={logoutUser}
 							status={status}
+							role={role}
+							userProducts={userProducts}
+							allProducts={allProducts}
 						/>
 					}
 				/>
@@ -165,9 +195,9 @@ function App() {
 					path="/track"
 					element={
 						<Track
-						web3={web3}
-						ethAccount = {ethAccount}
-						contract = {contract}
+							web3={web3}
+							ethAccount={ethAccount}
+							contract={contract}
 						/>
 					}
 				/>
