@@ -188,6 +188,8 @@ function App() {
 							role={role}
 							userProducts={userProducts}
 							allProducts={allProducts}
+							setAllProducts = {setAllProducts}
+							setUserProducts = {setUserProducts}
 						/>
 					}
 				/>

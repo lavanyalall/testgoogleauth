@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 
-function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, setStatus, logoutUser, status, role, userProducts, allProducts }) {
+function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, setStatus, logoutUser, status, role, userProducts, allProducts, setAllProducts, setUserProducts }) {
 	// const [allProducts, setAllProducts] = useState([]);
 	// const [userProducts, setUserProducts] = useState([]);
 	// const [role, setRole] = useState(null);
@@ -160,10 +160,11 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 	const fetchProducts = async () => {
 		try {
 			const allProductsList = await contract.methods.getAllProducts().call();
-			allProducts = allProductsList;
-
+			// allProducts = allProductsList;
+			setAllProducts(allProductsList)
 			const userProductsList = await contract.methods.getUserProducts(ethAccount).call();
-			userProducts = userProductsList;
+			// userProducts = userProductsList;
+			setUserProducts(userProductsList);
 		} catch (error) {
 			console.error('Error fetching products:', error);
 			setStatus('Error fetching products. Please check the console.');
@@ -187,7 +188,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 				.send({ from: ethAccount, gas: 3000000 });
 
 			setStatus('Product added successfully!');
-			fetchProducts();
+			await fetchProducts();
 		} catch (error) {
 			console.error('Error adding product:', error);
 			setStatus('Error adding product. Please check the console.');
