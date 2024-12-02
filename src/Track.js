@@ -8,7 +8,7 @@ function Track({ web3, ethAccount, contract }) {
 	useEffect(() => {
 		// loadWeb3();
 		loadBlockchaindata();
-	}, [])
+	}, [web3, contract, ethAccount])
 
 	const SupplyChainABI = GoogleAuthMappingArtifact;
 	const navigate = useNavigate();
@@ -45,9 +45,11 @@ function Track({ web3, ethAccount, contract }) {
 	const loadBlockchaindata = async () => {
 		setloader(true);
 		// const web3 = window.web3;
-		const account = ethAccount;
+		
+		if(web3 && contract && ethAccount){
+			const account = ethAccount;
 		setCurrentaccount(account);
-		const networkId = await web3.eth.net.getId();
+			const networkId = await web3.eth.net.getId();
 		const networkData = SupplyChainABI.networks[networkId];
 		if (networkData) {
 			const supplychain = new web3.eth.Contract(SupplyChainABI.abi, networkData.address);
@@ -91,6 +93,7 @@ function Track({ web3, ethAccount, contract }) {
 		}
 		else {
 			window.alert('The smart contract is not deployed to current network')
+		}
 		}
 	}
 	// if (loader) {
