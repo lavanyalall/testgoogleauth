@@ -317,7 +317,6 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 					<>
 						<h4 className='sub-heading'>Distribute</h4>
 						<form className='role-form' onSubmit={handlerSubmitDistribute}>
-						<label> Product Name</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitDistribute}>Distribute</button>
 						</form>
@@ -331,7 +330,6 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 					<>
 						<h4 className='sub-heading'>Retail</h4>
 						<form className='role-form' onSubmit={handlerSubmitRetail}>
-						<label> Product Name</label>
 							<input className="form-control-sm" type="text" onChange={handlerChangeID} placeholder="Enter Product ID" required />
 							<button className="btn btn-outline-light btn-sm" onSubmit={handlerSubmitRetail}>Retail</button>
 						</form>
