@@ -93,7 +93,7 @@ function App() {
 			setGoogleId(decoded.sub);
 			localStorage.setItem('googleId', decoded.sub);
 			setEmailId(decoded.email);
-			localStorage.setItem('emailId', decoded.emailId);
+			localStorage.setItem('emailId', decoded.email);
 			setStatus('Google login successful.');
 		} catch (error) {
 			console.error('Failed to decode token:', error);

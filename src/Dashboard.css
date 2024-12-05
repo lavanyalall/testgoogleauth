@@ -83,11 +83,11 @@ button[type = "submit"]:hover{
 }
 
 button.home{
-    width: 200px;
+    width: 20%;
 }
 
 button.logout{
-    width: 200px;
+    width: 20%;
 }
 
 form{
