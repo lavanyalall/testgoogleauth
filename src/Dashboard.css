@@ -188,3 +188,9 @@ td{
 	border: 2px solid #f4f002;
 	background-color: #000814;
 }
+
+.status-text{
+	font-weight: normal;
+	opacity: 0.9;
+	letter-spacing: 0.05vw;
+}

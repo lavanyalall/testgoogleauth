@@ -83,7 +83,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			const receipt = await contract.methods.RMSsupply(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Raw materials for Product ${ID} supplied successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Raw materials for Product ${ID} supplied successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -94,7 +94,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			const receipt = await contract.methods.Manufacturing(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} manufactured successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Product ${ID} manufactured successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -105,7 +105,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			const receipt = await contract.methods.Distribute(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} distributed successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Product ${ID} distributed successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -116,7 +116,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			const receipt = await contract.methods.Retail(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} retailed successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Product ${ID} retailed successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -127,7 +127,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 			const receipt = await contract.methods.sold(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} sold successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Product ${ID} sold successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -187,7 +187,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 				.addProduct(newProduct.name, parseInt(newProduct.quantity), emailId, newProduct.description)
 				.send({ from: ethAccount, gas: 3000000 });
 
-			setStatus(`Product added successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			setStatus(`Product added successfully! Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. Gas used in transaction: ${receipt.gasUsed} gwei.`);
 			await fetchProducts();
 		} catch (error) {
 			console.error('Error adding product:', error);
@@ -206,7 +206,7 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			<button onClick={() => navigate('/')} type="submit" className='home'>Home</button>
 			<button onClick={logoutUser} type="submit" className='logout'>Logout</button>
 			</div>
-			<p className='status'>Status: {status}</p>
+			<p className='status'>Status: <span className='status-text'>{status}</span></p>
 
 			{role == 1 && ( // Only manufacturers can add products
 				<div>

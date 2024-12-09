@@ -49,7 +49,7 @@ function Register({ web3, contract, googleId, emailId, setUsername, setEthAccoun
       localStorage.setItem('username', formData.username);
       localStorage.setItem('ethAccount', newAccount);
 	  localStorage.setItem('role',parseInt(formData.role));
-      setStatus(`Registration successful! Gas used for the registration was ${gasUsed} gwei.`);
+      setStatus(`Registration successful! Transaction completed through Ethereum Account: ${newAccount} associated with E-mail ID: ${emailId}. Gas used for the registration was ${gasUsed} gwei.`);
       navigate('/dashboard');
     } catch (error) {
       console.error('Error during registration:', error);

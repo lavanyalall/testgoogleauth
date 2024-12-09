@@ -130,7 +130,7 @@ function App() {
 							<h1>CraftChain Commerce</h1>
 							<h4>E-Marketplace for Artisans using Blockchain</h4>
 							<p>Discover a world of unique, handmade creations directly from talented artisans across the globe. We are committed to empowering artisans by providing a platform that celebrates their creativity and craftsmanship. Every purchase supports these skilled creators and helps preserve traditional arts. Explore our curated collection of authentic, handmade  products crafted by skilled artisans. Each piece is a work of art, carrying the story and tradition of its maker. Support artisans and find something truly special. Behind every product is a story, a craft, and a talented artisan who brings it to life. At CraftChain Commerce, we celebrate the incredible skills and creativity of artisans from around the world. Each piece you see here is the result of dedication, passion, and tradition passed down through generations.</p>
-							<p className='status'>Status: {status}</p>
+							<p className='status'>Status: <span className='status-text'>{status}</span></p>
 							<div className='btn-cont'>
 								{!googleId ? (
 									<GoogleLogin
