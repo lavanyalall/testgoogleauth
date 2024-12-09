@@ -82,8 +82,8 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		event.preventDefault();
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
-			await contract.methods.RMSsupply(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Raw materials for Product ${ID} supplied successfully!`);
+			const receipt = await contract.methods.RMSsupply(ID).send({ from: ethAccount, gas: 3000000 });
+			setStatus(`Raw materials for Product ${ID} supplied successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -93,8 +93,8 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		event.preventDefault();
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
-			await contract.methods.Manufacturing(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} manufactured successfully!`);
+			const receipt = await contract.methods.Manufacturing(ID).send({ from: ethAccount, gas: 3000000 });
+			setStatus(`Product ${ID} manufactured successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -104,8 +104,8 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		event.preventDefault();
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
-			await contract.methods.Distribute(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} distributed successfully!`);
+			const receipt = await contract.methods.Distribute(ID).send({ from: ethAccount, gas: 3000000 });
+			setStatus(`Product ${ID} distributed successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -115,8 +115,8 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		event.preventDefault();
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
-			await contract.methods.Retail(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} retailed successfully!`);
+			const receipt = await contract.methods.Retail(ID).send({ from: ethAccount, gas: 3000000 });
+			setStatus(`Product ${ID} retailed successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -126,8 +126,8 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 		event.preventDefault();
 		try {
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
-			await contract.methods.sold(ID).send({ from: ethAccount, gas: 3000000 });
-			setStatus(`Product ${ID} sold successfully!`);
+			const receipt = await contract.methods.sold(ID).send({ from: ethAccount, gas: 3000000 });
+			setStatus(`Product ${ID} sold successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 		}
 		catch (err) {
 			alert("An error occured!!!")
@@ -183,11 +183,11 @@ function Dashboard({ web3, contract, username, ethAccount, googleId, emailId, se
 			const accounts = await web3.eth.personal.getAccounts();
 			await web3.eth.personal.unlockAccount(ethAccount, 'password123', 600);
 
-			await contract.methods
+			const receipt = await contract.methods
 				.addProduct(newProduct.name, parseInt(newProduct.quantity), emailId, newProduct.description)
 				.send({ from: ethAccount, gas: 3000000 });
 
-			setStatus('Product added successfully!');
+			setStatus(`Product added successfully! Gas used in transaction: ${receipt.gasUsed} gwei.`);
 			await fetchProducts();
 		} catch (error) {
 			console.error('Error adding product:', error);
