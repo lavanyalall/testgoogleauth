@@ -1,45 +1,128 @@
 import { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google';
-import { jwtDecode } from 'jwt-decode';
-import Web3 from 'web3';
-import GoogleAuthMappingArtifact from './GoogleAuthMapping.json';
+import { Routes, Route, useNavigate } from 'react-router-dom';
+// import Web3 from 'web3';
+import axios from "axios";
+import { toast } from "react-hot-toast";
+import { useGoogleLogin } from "@react-oauth/google";
+import MainArtifact from './contracts/Main.json';
+import UserManagementArtifact from './contracts/UserManagement.json';
+import RawMaterialSupplierArtifact from './contracts/RawMaterialSupplier.json';
+import ManufacturerArtifact from './contracts/Manufacturer.json';
+import RequestManagementArtifact from './contracts/RequestManagement.json';
+import ConsumerArtifact from './contracts/Consumer.json';
+import ProductNFTArtifact from './contracts/ProductNFT.json';
+import Home from './Home';
 import Register from './Register';
-import Dashboard from './Dashboard';
-import Track from './Track';
+import RMSDashboard from './RMSDashboard';
+import ConsumerDashboard from './ConsumerDashboard';
+import ManufacturerDashboard from './ManufacturerDashboard';
+import Transactions from './Transactions';
+import Comments from './Comments';
+import ProductRawMaterials from './ProductRawMaterials';
+import ViewNFT from './ViewNFT';
+import ShippingDetails from './ShippingDetails';
 import './App.css';
+const {Web3} = require("web3");
 
 function App() {
 	const [web3, setWeb3] = useState(null);
-	const [contract, setContract] = useState(null);
+	const [mainContract, setMainContract] = useState(null);
+	const [userManagementContract, setUserManagementContract] = useState(null);
+	const [rawMaterialSupplierContract, setRawMaterialSupplierContract] = useState(null);
+	const [manufacturerContract, setManufacturerContract] = useState(null);
+	const [requestManagementContract, setRequestManagementContract] = useState(null);
+	const [consumerContract, setConsumerContract] = useState(null);
+	const [productNFTContract, setProductNFTContract] = useState(null);
 	const [googleId, setGoogleId] = useState(localStorage.getItem('googleId') || '');
 	const [emailId, setEmailId] = useState(localStorage.getItem('emailId') || '');
 	const [ethAccount, setEthAccount] = useState(localStorage.getItem('ethAccount') || '');
 	const [username, setUsername] = useState(localStorage.getItem('username') || '');
-	const [status, setStatus] = useState('');
 	const [isRegistered, setIsRegistered] = useState(false);
 	const [role, setRole] = useState(parseInt(localStorage.getItem('role')) || null);
-	const [userProducts, setUserProducts] = useState(JSON.parse(localStorage.getItem('userProducts')) || []);
-	const [allProducts, setAllProducts] = useState(JSON.parse(localStorage.getItem('allProducts')) || []);
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		const initBlockchain = async () => {
-			const provider = new Web3.providers.HttpProvider('http://127.0.0.1:7545');
+			const provider = new Web3.providers.HttpProvider('http://127.0.0.1:8545');
 			const web3Instance = new Web3(provider);
 			setWeb3(web3Instance);
-
 			const networkId = await web3Instance.eth.net.getId();
-			const deployedNetwork = GoogleAuthMappingArtifact.networks[networkId];
 
-			if (deployedNetwork) {
-				const contractInstance = new web3Instance.eth.Contract(
-					GoogleAuthMappingArtifact.abi,
-					deployedNetwork.address
+			const mainDeployedNetwork = MainArtifact.networks[networkId];
+			if (mainDeployedNetwork) {
+				const mainContractInstance = new web3Instance.eth.Contract(
+					MainArtifact.abi,
+					mainDeployedNetwork.address
 				);
-				setContract(contractInstance);
+				setMainContract(mainContractInstance);
 			} else {
-				console.error('Smart contract not deployed to the detected network.');
+				console.error('Smart contract "Main" not deployed to the detected network.');
+			}
+
+			const userManagementDeployedNetwork = UserManagementArtifact.networks[networkId];
+			if (userManagementDeployedNetwork) {
+				const userManagementContractInstance = new web3Instance.eth.Contract(
+					UserManagementArtifact.abi,
+					userManagementDeployedNetwork.address
+				);
+				setUserManagementContract(userManagementContractInstance);
+			} else {
+				console.error('Smart contract "UserManagement" not deployed to the detected network.');
+			}
+
+			const rawMaterialSupplierDeployedNetwork = RawMaterialSupplierArtifact.networks[networkId];
+			if (rawMaterialSupplierDeployedNetwork) {
+				const rawMaterialSupplierContractInstance = new web3Instance.eth.Contract(
+					RawMaterialSupplierArtifact.abi,
+					rawMaterialSupplierDeployedNetwork.address
+				);
+				setRawMaterialSupplierContract(rawMaterialSupplierContractInstance);
+			} else {
+				console.error('Smart contract "RawMaterialSupplier" not deployed to the detected network.');
+			}
+
+			const manufacturerDeployedNetwork = ManufacturerArtifact.networks[networkId];
+			if (manufacturerDeployedNetwork) {
+				const manufacturerContractInstance = new web3Instance.eth.Contract(
+					ManufacturerArtifact.abi,
+					manufacturerDeployedNetwork.address
+				);
+				setManufacturerContract(manufacturerContractInstance);
+			} else {
+				console.error('Smart contract "Manufacturer" not deployed to the detected network.');
+			}
+
+			const requestManagementDeployedNetwork = RequestManagementArtifact.networks[networkId];
+			if (requestManagementDeployedNetwork) {
+				const requestManagementContractInstance = new web3Instance.eth.Contract(
+					RequestManagementArtifact.abi,
+					requestManagementDeployedNetwork.address
+				);
+				setRequestManagementContract(requestManagementContractInstance);
+			} else {
+				console.error('Smart contract "RequestManagement" not deployed to the detected network.');
+			}
+
+			const consumerDeployedNetwork = ConsumerArtifact.networks[networkId];
+			if (consumerDeployedNetwork) {
+				const consumerContractInstance = new web3Instance.eth.Contract(
+					ConsumerArtifact.abi,
+					consumerDeployedNetwork.address
+				);
+				setConsumerContract(consumerContractInstance);
+			} else {
+				console.error('Smart contract "Consumer" not deployed to the detected network.');
+			}
+
+			const productNFTDeployedNetwork = ProductNFTArtifact.networks[networkId];
+			if (productNFTDeployedNetwork) {
+				const productNFTContractInstance = new web3Instance.eth.Contract(
+					ProductNFTArtifact.abi,
+					productNFTDeployedNetwork.address
+				);
+				setProductNFTContract(productNFTContractInstance);
+			} else {
+				console.error('Smart contract "ProductNFT" not deployed to the detected network.');
 			}
 		};
 
@@ -47,64 +130,52 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		if (googleId && contract) {
+		if (googleId && userManagementContract) {
 			checkRegistration();
 		}
-	}, [googleId, contract]);
-
-	const getProducts = async (ethAccount) => {
-		const addedUserProducts = await contract.methods.getUserProducts(ethAccount).call();
-		const addedAllProducts = await contract.methods.getAllProducts().call();
-
-		setAllProducts(addedAllProducts);
-		setUserProducts(addedUserProducts);
-		localStorage.setItem('userProducts', JSON.stringify(addedUserProducts));
-		console.log(localStorage.getItem('userProducts'));
-
-		localStorage.setItem('allProducts', JSON.stringify(addedAllProducts));
-		console.log(localStorage.getItem('allProducts'));
-	}
+	}, [googleId, userManagementContract, isRegistered]);
 
 	const checkRegistration = async () => {
 		const googleIdHash = web3.utils.sha3(googleId);
 		try {
-			const isRegistered = await contract.methods.validateUser(googleIdHash).call();
-			setIsRegistered(isRegistered);
-			if (isRegistered) {
-				const registeredUsername = await contract.methods.getUsername(googleIdHash).call();
-				const registeredAccount = await contract.methods.getUserAddress(googleIdHash).call();
-				const registeredRole = await contract.methods.getRole(googleIdHash).call();
+			const currReg = await userManagementContract.methods.validateUser(googleIdHash).call();
+			setIsRegistered(currReg);
+			if (currReg) {
+				const registeredUsername = await userManagementContract.methods.getUsername(googleIdHash).call();
+				const registeredAccount = await userManagementContract.methods.getUserAddress(googleIdHash).call();
+				const registeredRole = await userManagementContract.methods.getUserRole(googleIdHash).call();
 				setUsername(registeredUsername);
 				setEthAccount(registeredAccount);
-				setRole(registeredRole);
+				setRole(Number(registeredRole));
 				localStorage.setItem('username', registeredUsername);
 				localStorage.setItem('ethAccount', registeredAccount);
-				localStorage.setItem('role', registeredRole);
-				await getProducts(registeredAccount);
+				localStorage.setItem('role', Number(registeredRole));
 			}
 		} catch (err) {
 			console.error('Error checking registration:', err);
 		}
 	};
 
-	const handleGoogleLoginSuccess = (response) => {
-		try {
-			const decoded = jwtDecode(response.credential);
-			setGoogleId(decoded.sub);
-			localStorage.setItem('googleId', decoded.sub);
-			setEmailId(decoded.email);
-			localStorage.setItem('emailId', decoded.email);
-			setStatus('Google login successful.');
-		} catch (error) {
-			console.error('Failed to decode token:', error);
-			setStatus('Google login failed. Try again.');
-		}
-	};
-
-	const handleGoogleLoginFailure = (response) => {
-		console.error('Google login failed:', response);
-		setStatus('Google login failed. Try again.');
-	};
+	const handleGoogleLogin = useGoogleLogin({
+		onSuccess: (codeResponse) => {
+			axios.get(
+				`https://www.googleapis.com/oauth2/v1/userinfo? 
+                   access_token=${codeResponse.access_token}`,
+				{
+					headers: {
+						Authorization: `Bearer ${codeResponse.access_token}`,
+						Accept: "application/json",
+					},
+				}).then((res) => {
+					setGoogleId(res.data.id);
+					localStorage.setItem('googleId', res.data.id);
+					setEmailId(res.data.email);
+					localStorage.setItem('emailId', res.data.email);
+					toast.success('Google login successful.');
+				}).catch((error) => {toast.error(`Failed to decode token:', ${error}. \n\n Please try again.`); console.log(error);})
+		},
+		onError: (error) => {toast.error(`Failed to decode token:', ${error}. \n\n Please try again.`); console.log(error);}
+	});
 
 	const logoutUser = () => {
 		localStorage.clear();
@@ -113,11 +184,10 @@ function App() {
 		setEthAccount('');
 		setUsername('');
 		setRole(null);
-		setUserProducts([]);
-		setAllProducts([]);
 		setIsRegistered(false);
+		setGoogleId('');
 		navigate('/');
-		setStatus('Logged out successfully.');
+		toast.success('Logged out successfully.');
 	};
 
 	return (
@@ -126,32 +196,13 @@ function App() {
 				<Route
 					path="/"
 					element={
-						<div>
-							<h1>CraftChain Commerce</h1>
-							<h4>E-Marketplace for Artisans using Blockchain</h4>
-							<p>Discover a world of unique, handmade creations directly from talented artisans across the globe. We are committed to empowering artisans by providing a platform that celebrates their creativity and craftsmanship. Every purchase supports these skilled creators and helps preserve traditional arts. Explore our curated collection of authentic, handmade  products crafted by skilled artisans. Each piece is a work of art, carrying the story and tradition of its maker. Support artisans and find something truly special. Behind every product is a story, a craft, and a talented artisan who brings it to life. At CraftChain Commerce, we celebrate the incredible skills and creativity of artisans from around the world. Each piece you see here is the result of dedication, passion, and tradition passed down through generations.</p>
-							<p className='status'>Status: <span className='status-text'>{status}</span></p>
-							<div className='btn-cont'>
-								{!googleId ? (
-									<GoogleLogin
-										buttonText="Sign in with Google"
-										onSuccess={handleGoogleLoginSuccess}
-										onFailure={handleGoogleLoginFailure}
-									/>
-								) : (
-									<button onClick={logoutUser}>Logout</button>
-								)}
-									{!isRegistered && googleId && (
-										<button onClick={() => navigate('/register')}>Register</button>
-									)}
-									{isRegistered && googleId && (
-										<>
-											<button onClick={() => navigate('/dashboard')}>Go to Dashboard</button>
-											<button onClick={() => navigate('/track')}>Track a Product</button>
-										</>
-									)}
-							</div>
-						</div>
+						<Home
+							googleId={googleId}
+							isRegistered={isRegistered}
+							role={role}
+							handleGoogleLogin = {handleGoogleLogin}
+							logoutUser={logoutUser}
+						/>
 					}
 				/>
 				<Route
@@ -159,47 +210,116 @@ function App() {
 					element={
 						<Register
 							web3={web3}
-							contract={contract}
+							contract={userManagementContract}
 							googleId={googleId}
 							emailId={emailId}
+							role={role}
 							setUsername={setUsername}
 							setEthAccount={setEthAccount}
 							setIsRegistered={setIsRegistered}
-							setStatus={setStatus}
 							setRole={setRole}
-							setAllProducts={setAllProducts}
-							setUserProducts={setUserProducts}
 						/>
 					}
 				/>
 				<Route
-					path="/dashboard"
+					path="/rms-dashboard"
+					element={<RMSDashboard
+						web3={web3}
+						mainContract={mainContract}
+						userManagementContract={userManagementContract}
+						RMSContract={rawMaterialSupplierContract}
+						manufacturerContract={manufacturerContract}
+						productNFTContract={productNFTContract}
+						username={username}
+						emailId={emailId}
+						googleId={googleId}
+						ethAccount={ethAccount}
+						logoutUser={logoutUser}
+					/>}
+				/>
+				<Route
+					path="/manufacturer-dashboard"
+					element={<ManufacturerDashboard 
+						web3 = {web3}
+						mainContract = {mainContract}
+						userManagementContract = {userManagementContract}
+						RMSContract = {rawMaterialSupplierContract}
+						manufacturerContract = {manufacturerContract}
+						RMContract = {requestManagementContract}
+						consumerContract={consumerContract}
+						productNFTContract = {productNFTContract}
+						ethAccount={ethAccount}
+						googleId = {googleId}
+						username={username}
+						logoutUser={logoutUser}
+						emailId = {emailId}
+					/>}
+				/>
+				<Route
+					path="/consumer-dashboard"
+					element={<ConsumerDashboard 
+						web3 = {web3}
+						userManagementContract={userManagementContract}
+						consumerContract={consumerContract}
+						manufacturerContract = {manufacturerContract}
+						RMContract = {requestManagementContract}
+						mainContract = {mainContract}
+						productNFTContract = {productNFTContract}
+						googleId = {googleId}
+						username = {username}
+						ethAccount = {ethAccount}
+						logoutUser = {logoutUser}
+						emailId = {emailId}
+					/>}
+				/>
+				<Route
+					path="/transactions"
 					element={
-						<Dashboard
-							web3={web3}
-							contract={contract}
-							username={username}
-							ethAccount={ethAccount}
-							googleId={googleId}
-							emailId={emailId}
-							setStatus={setStatus}
-							logoutUser={logoutUser}
-							status={status}
-							role={role}
-							userProducts={userProducts}
-							allProducts={allProducts}
-							setAllProducts = {setAllProducts}
-							setUserProducts = {setUserProducts}
+						<Transactions
+						web3 = {web3}
+						ethAccount = {ethAccount}
+						mainContract = {mainContract}
+						userManagementContract = {userManagementContract}
 						/>
 					}
 				/>
 				<Route
-					path="/track"
+					path="/comments"
 					element={
-						<Track
-							web3={web3}
-							ethAccount={ethAccount}
-							contract={contract}
+						<Comments
+						web3 = {web3}
+						ethAccount = {ethAccount}
+						mainContract = {mainContract}
+						userManagementContract = {userManagementContract}
+						/>
+					}
+				/>
+				<Route
+					path="/view-raw-materials"
+					element={
+						<ProductRawMaterials
+						web3 = {web3}
+						ethAccount = {ethAccount}
+						mainContract = {mainContract}
+						userManagementContract = {userManagementContract}
+						/>
+					}
+				/>
+				<Route
+					path="/view-nft"
+					element={
+						<ViewNFT
+						/>
+					}
+				/>
+				<Route
+					path="/view-shipping-details"
+					element={
+						<ShippingDetails
+						web3 = {web3}
+						ethAccount = {ethAccount}
+						mainContract = {mainContract}
+						userManagementContract = {userManagementContract}
 						/>
 					}
 				/>

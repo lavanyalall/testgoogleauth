@@ -9,7 +9,8 @@ body{
 text-align: center;
 font-size: 7vh;
 text-transform: uppercase;
-color: #f4f002;
+color: #f4f002
+;
 font-family: "Domine", serif;
 }
 
@@ -58,7 +59,8 @@ input[type = "text"]{
 }
 
 input[type = "radio"]{
-	accent-color: #f4f002;
+	accent-color: #f4f002
+;
 }
 
 button[type = "submit"]{
@@ -67,14 +69,18 @@ button[type = "submit"]{
 	font-size: 3vh;
 	padding: 1vw;
 	font-weight: 500;
-	background-color: #f4f002;
+	background-color: #f4f002
+;
 	color: #000814;
 	border-radius: 5px;
 	margin-top: 2vh;
 }
 
 button[type = "submit"]:hover{
-	border: 2px solid #f4f002;
+	border: 2px solid #f4f002
+;
 	background-color: #000814;
-	color: #f4f002;
+	color: #f4f002
+;
+	cursor: pointer;
 }

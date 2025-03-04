@@ -6,7 +6,8 @@ body{
 
 h1{
 	text-align: center;
-	color: #f4f002;
+	color: #f4f002
+;
 	font-size: 8vh;
 	font-family: "Domine", serif;
 	margin-bottom: -2vh;
@@ -24,11 +25,13 @@ h4{
 .btn-cont{
 	display: flex;
 	justify-content: space-around;
+	margin-top: 7vh;
 }
 
 .btn-cont button{
 	width: 30%;
-	background-color: #f4f002;
+	background-color: #f4f002
+;
 	color: #000814;
 	font-size: 3vh;
 	padding: 1.5vh;
@@ -36,12 +39,15 @@ h4{
 	font-family: 'Quattrocento', serif;
 	margin-bottom: 2vh;
 	border-radius: 5px;
+	cursor: pointer;
 }
 
 .btn-cont button:hover{
-	color: #f4f002;
+	color: #f4f002
+;
 	background-color: #000814;
-	border: 2px solid #f4f002;
+	border: 2px solid #f4f002
+;
 }
 
 p{
