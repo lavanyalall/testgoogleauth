@@ -20,6 +20,8 @@
 .env
 todo.txt
 blockchain.py
+BTP.pdf
+BTP.pptx.pdf
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

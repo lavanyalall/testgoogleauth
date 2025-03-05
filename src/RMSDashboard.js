@@ -160,6 +160,7 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 			// const r1 = await mainContract.methods.setUserTrustScore(soldRawMaterial.rawMaterial.registeringUser.ethAddress, currRMSTrustScore).send({ from: ethAccount, gas: 30000000 });
 			let currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(soldRawMaterial.buyingUser.ethAddress).call();
 			currManufacturerTrustScore = Number(currManufacturerTrustScore);
+			const oldManufacturerTrustScore = currManufacturerTrustScore;
 			if (currManufacturerTrustScore + (100 * Number(ManufacturerComments[soldRawMaterial.id]?.rating - 3)) < 0) {
 				currManufacturerTrustScore = 0;
 			}
@@ -171,7 +172,7 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 			}
 			const r2 = await mainContract.methods.setUserTrustScore(soldRawMaterial.buyingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Comment for Manufacturer added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Comment for Manufacturer added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Manufacturer Trust Score updated from ${oldManufacturerTrustScore / 100000} to ${currManufacturerTrustScore / 100000}.`);
 			setManufacturerComments((prevState) => ({
 				...prevState,
 				[soldRawMaterial.id]: {

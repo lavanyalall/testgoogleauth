@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
-// import Web3 from 'web3';
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useGoogleLogin } from "@react-oauth/google";

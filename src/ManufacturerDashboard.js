@@ -308,6 +308,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			const receipt = await manufacturerContract.methods.receiveRawMaterial(soldRawMaterial.id).send({ from: ethAccount, gas: 30000000 });
 			let currRMSTrustScore = await mainContract.methods.getUserTrustScore(soldRawMaterial.rawMaterial.registeringUser.ethAddress).call();
 			currRMSTrustScore = Number(currRMSTrustScore);
+			const oldRMSTrustScore = currRMSTrustScore;
 			if (currRMSTrustScore + 100 > 10000000) {
 				currRMSTrustScore = 10000000;
 			}
@@ -323,6 +324,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			const r1 = await mainContract.methods.setUserTrustScore(soldRawMaterial.rawMaterial.registeringUser.ethAddress, currRMSTrustScore).send({ from: ethAccount, gas: 30000000 });
 			let currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(soldRawMaterial.buyingUser.ethAddress).call();
 			currManufacturerTrustScore = Number(currManufacturerTrustScore);
+			const oldManufacturerTrustScore = currManufacturerTrustScore;
 			if (currManufacturerTrustScore + 100 > 10000000) {
 				currManufacturerTrustScore = 10000000;
 			}
@@ -337,7 +339,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			// }
 			const r2 = await mainContract.methods.setUserTrustScore(soldRawMaterial.buyingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Raw Material received successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Raw Material received successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Raw Material Supplier Trust Score updated from ${oldRMSTrustScore / 100000} to ${currRMSTrustScore / 100000}. \n\n Manufacturer Trust Score updated from ${oldManufacturerTrustScore / 100000} to ${currManufacturerTrustScore / 100000}.`);
 			await fetchProducts();
 		} catch (error) {
 			toast.error('Error receiving raw material. Please check the console.');
@@ -435,6 +437,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			const receipt = await RMSContract.methods.addSoldRawMaterialComment(soldRawMaterial.id, rawMaterialComments[soldRawMaterial.id]?.comment, rawMaterialComments[soldRawMaterial.id]?.rating).send({ from: ethAccount, gas: 30000000 });
 			let currRMSTrustScore = await mainContract.methods.getUserTrustScore(soldRawMaterial.rawMaterial.registeringUser.ethAddress).call();
 			currRMSTrustScore = Number(currRMSTrustScore);
+			const oldRMSTrustScore = currRMSTrustScore;
 			if (currRMSTrustScore + (100 * Number(rawMaterialComments[soldRawMaterial.id]?.rating - 3)) < 0) {
 				currRMSTrustScore = 0;
 			}
@@ -456,7 +459,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			// }
 			// const r2 = await mainContract.methods.setUserTrustScore(soldRawMaterial.buyingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Comment for Raw Material added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Comment for Raw Material added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Raw Material Supplier Trust Score updated from ${oldRMSTrustScore / 100000} to ${currRMSTrustScore / 100000}.`);
 			setRawMaterialComments((prevState) => ({
 				...prevState,
 				[soldRawMaterial.id]: {
@@ -520,6 +523,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			const receipt = await consumerContract.methods.addConsumerComment(soldProduct.product.manufacturingUser, soldProduct.buyingUser, consumerComments[soldProduct.id]?.comment, consumerComments[soldProduct.id]?.rating, soldProduct.id).send({ from: ethAccount, gas: 30000000 });
 			let currConsumerTrustScore = await mainContract.methods.getUserTrustScore(soldProduct.buyingUser.ethAddress).call();
 			currConsumerTrustScore = Number(currConsumerTrustScore);
+			const oldConsumerTrustScore = currConsumerTrustScore;
 			if (currConsumerTrustScore + (100 * Number(consumerComments[soldProduct.id]?.rating - 3)) < 0) {
 				currConsumerTrustScore = 0;
 			}
@@ -541,7 +545,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 			// }
 			// const r2 = await mainContract.methods.setUserTrustScore(soldProduct.product.manufacturingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Comment for Consumer added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Comment for Consumer added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Consumer Trust Score updated from ${oldConsumerTrustScore / 100000} to ${currConsumerTrustScore / 100000}.`);
 			setConsumerComments((prevState) => ({
 				...prevState,
 				[soldProduct.id]: {
@@ -965,7 +969,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>ID</th>
 								<th>Date Added</th>
 								<th>Name</th>
-								{/* <th>Quantity</th> */}
+								<th>Quantity</th>
 								<th>Price per Unit</th>
 								<th>Weight per Unit</th>
 								<th>Description</th>
@@ -980,7 +984,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(product.id)}</td>
 									<td>{new Date(Number(product.timestamp) * 1000).toLocaleString('en-GB')}</td>
 									<td>{String(product.name)}</td>
-									{/* <td>{String(product.quantity)}</td> */}
+									<td>{String(product.quantity)}</td>
 									<td>Rs. {String(product.pricePerUnit)}</td>
 									<td>{String(product.weightPerUnit)} kg</td>
 									<td>{String(product.description)}</td>
@@ -1001,7 +1005,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>Date Added</th>
 								<th>Name</th>
 								<th>Date Manufactured</th>
-								{/* <th>Quantity</th> */}
+								<th>Quantity</th>
 								<th>Price per Unit</th>
 								<th>Weight per Unit</th>
 								<th>Description</th>
@@ -1016,7 +1020,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{new Date(Number(product.timestamp) * 1000).toLocaleString('en-GB')}</td>
 									<td>{String(product.name)}</td>
 									<td>{new Date(Number(product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(product.quantity)}</td> */}
+									<td>{String(product.quantity)}</td>
 									<td>Rs. {String(product.pricePerUnit)}</td>
 									<td>{String(product.weightPerUnit)} kg</td>
 									<td>{String(product.description)}</td>
@@ -1035,9 +1039,9 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							<th>Date Added</th>
 							<th>Name</th>
 							<th>Date Manufactured</th>
-							{/* <th>Quantity Purchased</th> */}
+							<th>Quantity Purchased</th>
 							<th>Price per Unit</th>
-							{/* <th>Total Price</th> */}
+							<th>Total Price</th>
 							<th>Description</th>
 							<th>Date Sold</th>
 							<th>Consumer Sold To</th>
@@ -1055,9 +1059,9 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<td>{new Date(Number(soldProduct.product.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{String(soldProduct.product.name)}</td>
 								<td>{new Date(Number(soldProduct.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-								{/* <td>{String(soldProduct.transaction.quantity)}</td> */}
+								<td>{String(soldProduct.transaction.quantity)}</td>
 								<td>Rs. {String(soldProduct.product.pricePerUnit)}</td>
-								{/* <td>{String(soldProduct.transaction.pricePerUnit * soldProduct.transaction.quantity)}</td> */}
+								<td>{String(soldProduct.transaction.pricePerUnit * soldProduct.transaction.quantity)}</td>
 								<td>{String(soldProduct.product.description)}</td>
 								<td>{new Date(Number(soldProduct.transaction.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{String(soldProduct.buyingUser.email)}</td>
@@ -1101,9 +1105,9 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							<th>Date Added</th>
 							<th>Name</th>
 							<th>Date Manufactured</th>
-							{/* <th>Quantity Purchased</th> */}
+							<th>Quantity Purchased</th>
 							<th>Price per Unit</th>
-							{/* <th>Total Price</th> */}
+							<th>Total Price</th>
 							<th>Description</th>
 							<th>Date Sold</th>
 							<th>Date Received</th>
@@ -1123,9 +1127,9 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<td>{new Date(Number(soldProduct.product.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{String(soldProduct.product.name)}</td>
 								<td>{new Date(Number(soldProduct.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-								{/* <td>{String(soldProduct.transaction.quantity)}</td> */}
+								<td>{String(soldProduct.transaction.quantity)}</td>
 								<td>Rs. {String(soldProduct.product.pricePerUnit)}</td>
-								{/* <td>{String(soldProduct.transaction.quantity * soldProduct.transaction.pricePerUnit)}</td> */}
+								<td>{String(soldProduct.transaction.quantity * soldProduct.transaction.pricePerUnit)}</td>
 								<td>{String(soldProduct.product.description)}</td>
 								<td>{new Date(Number(soldProduct.transaction.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{new Date(Number(soldProduct.receivedTimestamp) * 1000).toLocaleString('en-GB')}</td>
@@ -1176,12 +1180,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Manufactured Date</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 								<th>Respond to Request</th>
 							</tr>
 						</thead>
@@ -1196,12 +1200,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 									<td><button onClick={() => handleAcceptRequest(request.id)} className='table-button'>Accept Request</button>
 										<button className="table-button" onClick={() => handleRejectRequest(request.id)}>Reject Request</button></td>
 								</tr>
@@ -1222,12 +1226,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Manufactured Date</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1241,12 +1245,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -1265,12 +1269,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Manufactured Date</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1284,12 +1288,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -1308,12 +1312,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Manufactured Date</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -1327,12 +1331,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>

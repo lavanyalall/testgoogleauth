@@ -296,6 +296,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			const receipt = await consumerContract.methods.receiveProduct(soldProduct.id).send({ from: ethAccount, gas: 30000000 });
 			let currConsumerTrustScore = await mainContract.methods.getUserTrustScore(soldProduct.buyingUser.ethAddress).call();
 			currConsumerTrustScore = Number(currConsumerTrustScore);
+			const oldConsumerTrustScore = currConsumerTrustScore;
 			if (currConsumerTrustScore + 100 > 10000000) {
 				currConsumerTrustScore = 10000000;
 			}
@@ -311,6 +312,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			const r1 = await mainContract.methods.setUserTrustScore(soldProduct.buyingUser.ethAddress, currConsumerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			let currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(soldProduct.product.manufacturingUser.ethAddress).call();
 			currManufacturerTrustScore = Number(currManufacturerTrustScore);
+			const oldManufacturerTrustScore = currManufacturerTrustScore;
 			if (currManufacturerTrustScore + 100 > 10000000) {
 				currManufacturerTrustScore = 10000000;
 			}
@@ -325,7 +327,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			// }
 			const r2 = await mainContract.methods.setUserTrustScore(soldProduct.product.manufacturingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Product received successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Product received successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Manufacturer Trust Score updated from ${oldManufacturerTrustScore / 100000} to ${currManufacturerTrustScore / 100000}. \n\n Consumer Trust Score updated from ${oldConsumerTrustScore / 100000} to ${currConsumerTrustScore / 100000}.`);
 			await fetchProducts();
 		} catch (error) {
 			toast.error('Error receiving product. Please check the console.');
@@ -433,6 +435,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 
 			let currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(receivedProduct.product.manufacturingUser.ethAddress).call();
 			currManufacturerTrustScore = Number(currManufacturerTrustScore);
+			const oldManufacturerTrustScore = currManufacturerTrustScore;
 			if (currManufacturerTrustScore + (100 * Number(productComments[receivedProduct.id]?.rating - 3)) < 0) {
 				currManufacturerTrustScore = 0;
 			}
@@ -444,7 +447,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			}
 			const r2 = await mainContract.methods.setUserTrustScore(receivedProduct.product.manufacturingUser.ethAddress, currManufacturerTrustScore).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
-			toast.success(`Comment for Product added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
+			toast.success(`Comment for Product added successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei. \n\n Manufacturer Trust Score updated from ${oldManufacturerTrustScore / 100000} to ${currManufacturerTrustScore / 100000}.`);
 			setProductComments((prevState) => ({
 				...prevState,
 				[receivedProduct.id]: {
@@ -537,14 +540,14 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Date Manufactured</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Manufacturer Comments</th>
 								<th>Product Comments</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -557,14 +560,14 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewManufacturerComments(request.product.manufacturingUser)} target="_blank">View Manufacturer Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewProductComments(request.product.id)} target="_blank">View Product Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -582,14 +585,14 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Date Manufactured</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Manufacturer Comments</th>
 								<th>Product Comments</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 								<th>Buy</th>
 							</tr>
 						</thead>
@@ -603,14 +606,14 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewManufacturerComments(request.product.manufacturingUser)} target="_blank">View Manufacturer Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewProductComments(request.product.id)} target="_blank">View Product Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 									<td><button className="table-button" onClick={() => handleBuyProduct(request)}>Buy Product</button></td>
 								</tr>
 							))}
@@ -630,11 +633,11 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Date Manufactured</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -647,11 +650,11 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -669,12 +672,12 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<th>Product ID</th>
 								<th>Product Name</th>
 								<th>Product Date Manufactured</th>
-								{/* <th>Product Quantity Available</th> */}
+								<th>Product Quantity Available</th>
 								<th>Product Price per Unit</th>
 								<th>Product Description</th>
 								<th>Product Raw Materials</th>
 								<th>Product NFT</th>
-								{/* <th>Quantity Requested</th> */}
+								<th>Quantity Requested</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -687,12 +690,12 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(request.product.id)}</td>
 									<td>{String(request.product.name)}</td>
 									<td>{new Date(Number(request.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-									{/* <td>{String(request.product.quantity)}</td> */}
+									<td>{String(request.product.quantity)}</td>
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
-									{/* <td>{String(request.quantity)}</td> */}
+									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
@@ -709,7 +712,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<th>Date Manufactured</th>
 								<th>Quantity Purchased</th>
 								<th>Price per Unit</th>
-								{/* <th>Total Price</th> */}
+								<th>Total Price</th>
 								<th>Description</th>
 								<th>Date Bought</th>
 								<th>Manufacturer Bought From</th>
@@ -729,7 +732,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{new Date(Number(boughtProduct.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
 									<td>{String(boughtProduct.transaction.quantity)}</td>
 									<td>Rs. {String(boughtProduct.product.pricePerUnit)}</td>
-									{/* <td>{String(boughtProduct.transaction.pricePerUnit * boughtProduct.transaction.quantity)}</td> */}
+									<td>{String(boughtProduct.transaction.pricePerUnit * boughtProduct.transaction.quantity)}</td>
 									<td>{String(boughtProduct.product.description)}</td>
 									<td>{new Date(Number(boughtProduct.transaction.timestamp) * 1000).toLocaleString('en-GB')}</td>
 									<td>{String(boughtProduct.product.manufacturingUser.email)}</td>
@@ -752,9 +755,9 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 							<th>Date Added</th>
 							<th>Name</th>
 							<th>Date Manufactured</th>
-							{/* <th>Quantity Purchased</th> */}
+							<th>Quantity Purchased</th>
 							<th>Price per Unit</th>
-							{/* <th>Total Price</th> */}
+							<th>Total Price</th>
 							<th>Description</th>
 							<th>Date Bought</th>
 							<th>Date Received</th>
@@ -774,9 +777,9 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<td>{new Date(Number(receivedProduct.product.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{String(receivedProduct.product.name)}</td>
 								<td>{new Date(Number(receivedProduct.product.manufacturedTimestamp) * 1000).toLocaleString('en-GB')}</td>
-								{/* <td>{String(receivedProduct.transaction.quantity)}</td> */}
+								<td>{String(receivedProduct.transaction.quantity)}</td>
 								<td>Rs. {String(receivedProduct.product.pricePerUnit)}</td>
-								{/* <td>{String(receivedProduct.transaction.pricePerUnit * receivedProduct.transaction.quantity)}</td> */}
+								<td>{String(receivedProduct.transaction.pricePerUnit * receivedProduct.transaction.quantity)}</td>
 								<td>{String(receivedProduct.product.description)}</td>
 								<td>{new Date(Number(receivedProduct.transaction.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{new Date(Number(receivedProduct.receivedTimestamp) * 1000).toLocaleString('en-GB')}</td>
