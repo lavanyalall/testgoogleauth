@@ -7,7 +7,8 @@ function ShippingDetails() {
 	const heading = location.state?.heading || '';
 	return (<>
 		{sd.length ? (<><h3 className='sub-heading'>{heading}</h3>
-			<table>
+			<div className="table-cont">
+            <table>
 				<thead>
 					<tr>
 						<th>Transaction ID</th>
@@ -48,7 +49,8 @@ function ShippingDetails() {
 						</tr>
 					))}
 				</tbody>
-			</table></>) : (<></>)
+			</table>
+          </div></>) : (<></>)
 		}</>
 	)
 }

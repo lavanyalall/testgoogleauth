@@ -4,7 +4,7 @@ import { AES, enc } from 'crypto-js';
 import toast from "react-hot-toast";
 require("dotenv").config();
 
-function ProductRawMaterials({mainContract, userManagementContract, web3, ethAccount}) {
+function ProductRawMaterials({mainContract, userManagementContract, RMSContract, web3, ethAccount}) {
 	const navigate = useNavigate();
 	const location = useLocation();
 	const rawMaterials = location.state?.rawMaterials || [];
@@ -51,10 +51,32 @@ function ProductRawMaterials({mainContract, userManagementContract, web3, ethAcc
 		}
 	};
 
+	const handleViewRMSComments = async (user) => {
+			try {
+				const comments = await mainContract.methods.getUserReceivedComments(user.ethAddress).call();
+				navigate('/comments', { state: { comments: comments, heading: `Comments for Sold Raw Material Supplier: ${user.username}` } });
+			}
+			catch (error) {
+				toast.error('Error fetching raw material supplier comments. Please check the console.');
+				console.log(error);
+			}
+		};
+	
+		const handleViewRawMaterialComments = async (id) => {
+			try {
+				const comments = await RMSContract.methods.getRawMaterialComments(id).call();
+				navigate('/comments', { state: { comments: comments, heading: `Comments for Raw Material ID: ${id}` } });
+			}
+			catch (error) {
+				toast.error('Error fetching raw material comments. Please check the console.');
+				console.log(error);
+			}
+		};
 
 	return (<>
 		{rawMaterials.length ? (<><h3 className='sub-heading'>{heading}</h3>
-			<table>
+			<div className="table-cont">
+            <table>
 				<thead>
 					<tr>
 						<th>ID</th>
@@ -70,7 +92,9 @@ function ProductRawMaterials({mainContract, userManagementContract, web3, ethAcc
 						<th>Raw Material Supplier Trust Score</th>
 						<th>Manufacturing User</th>
 						<th>Manufacturer Trust Score</th>
-						<th>View Shipping Details</th>
+						<th>Shipping Details</th>
+						<th>Raw Material Supplier Comments</th>
+						<th>Raw Material Comments</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -90,10 +114,13 @@ function ProductRawMaterials({mainContract, userManagementContract, web3, ethAcc
 							<td>{String(soldRawMaterial.buyingUser.email)}</td>
 							<td>{String(Number(trustScores[soldRawMaterial.buyingUser.ethAddress]) / 100000)}</td>
 							<td><a className='comment-link' onClick={() => handleViewShippingDetails(soldRawMaterial.transaction)} target="_blank">View Shipping Details</a></td>
+							<td><a className='comment-link' onClick={() => handleViewRMSComments(soldRawMaterial.rawMaterial.registeringUser)} target="_blank">View RMS Comments</a></td>
+							<td><a className='comment-link' onClick={() => handleViewRawMaterialComments(soldRawMaterial.rawMaterial.id)} target="_blank">View Raw Material Comments</a></td>
 						</tr>
 					))}
 				</tbody>
-			</table></>) : (<></>)
+			</table>
+          </div></>) : (<></>)
 		}</>
 	)
 }

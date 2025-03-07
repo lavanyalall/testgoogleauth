@@ -198,15 +198,15 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 		}
 	};
 
-	const handleViewNFT = async (productId) => {
+	const handleViewNFT = async (soldRawMaterialId) => {
 		try {
 			// const nft = await productNFTContract.methods.getProductNFT(productId).call();
 			// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
-			const nfts = await productNFTContract.methods.getProductNFT(productId).call();
-			navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${productId}` } });
+			const nfts = await productNFTContract.methods.getSoldRawMaterialProductNFT(soldRawMaterialId).call();
+			navigate('/view-nft', { state: { nfts: nfts, heading: `NFTs for Sold Raw Material ID: ${soldRawMaterialId}`, group: false } });
 		}
 		catch (error) {
-			toast.error('Error fetching NFT. Please check the console.');
+			toast.error('Error fetching NFTs. Please check the console.');
 			console.log(error);
 		}
 	};
@@ -256,7 +256,8 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 				</form>
 			</div>
 			{unsoldRawMaterials.length ? (<><h3 className='sub-heading'>Unsold Raw Materials</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -281,10 +282,12 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{soldRawMaterials.filter(soldRawMaterial => !soldRawMaterial.received).length ? (<><h3 className='sub-heading'>Pending Raw Materials</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -305,7 +308,7 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 						{soldRawMaterials.filter(soldRawMaterial => !soldRawMaterial.received).map((soldRawMaterial) => (
 							<tr key={soldRawMaterial.id}>
 								<td>{String(soldRawMaterial.id)}</td>
-								<td>{new Date(soldRawMaterial.rawMaterial.timestamp * 1000).toLocaleString('en-GB')}</td>
+								<td>{new Date(Number(soldRawMaterial.rawMaterial.timestamp) * 1000).toLocaleString('en-GB')}</td>
 								<td>{String(soldRawMaterial.rawMaterial.name)}</td>
 								<td>{String(soldRawMaterial.transaction.quantity)}</td>
 								<td>Rs. {String(soldRawMaterial.rawMaterial.pricePerUnit)}</td>
@@ -341,10 +344,12 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{soldRawMaterials.filter(soldRawMaterial => soldRawMaterial.received).length ? (<><h3 className='sub-heading'>Received Raw Materials</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -405,11 +410,12 @@ function RMSDashboard({ web3, mainContract, userManagementContract, RMSContract,
 								}</td>
 								<td><a className='comment-link' onClick={() => handleViewShippingDetails(soldRawMaterial)}>View Shipping Details</a></td>
 								<td>{String(rawMaterialToProduct[soldRawMaterial.id]?.name)}</td>
-								<td>{rawMaterialToProduct[soldRawMaterial.id]?.manufactured ? (<a className='comment-link' onClick={() => handleViewNFT(rawMaterialToProduct[soldRawMaterial.id].id)} target="_blank">View NFT</a>) : "Product has not been manufactured yet."}</td>
+								<td>{rawMaterialToProduct[soldRawMaterial.id]?.manufactured ? (<a className='comment-link' onClick={() => handleViewNFT(soldRawMaterial.id)} target="_blank">View NFT</a>) : "Product has not been manufactured yet."}</td>
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 		</div>
 	);

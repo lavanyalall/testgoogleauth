@@ -53,7 +53,8 @@ function Transactions({ mainContract, userManagementContract, web3, ethAccount }
 
 	return (<>
 		{transactions.length ? (<><h3 className='sub-heading'>{heading}</h3>
-			<table>
+			<div className="table-cont">
+            <table>
 				<thead>
 					<tr>
 						<th>ID</th>
@@ -90,7 +91,8 @@ function Transactions({ mainContract, userManagementContract, web3, ethAccount }
 						</tr>
 					))}
 				</tbody>
-			</table></>) : (<h2 className = "page-heading">No transactions found.</h2>)
+			</table>
+          </div></>) : (<h2 className = "page-heading">No transactions found.</h2>)
 		}</>
 	)
 }

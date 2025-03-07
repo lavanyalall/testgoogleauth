@@ -680,8 +680,15 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 				toast.error("Error uploading metadata to IPFS. Please try again.");
 				return;
 			}
+			console.log("x");
 			// await productNFTContract.methods.manufactureProduct(metadataHash, product.id, product.manufacturingUser).send({ from: ethAccount, gas: 30000000 });
-			await productNFTContract.methods.manufactureProduct(metadataHash, product.id, product.quantity, product.manufacturingUser).send({ from: ethAccount, gas: 30000000 });
+			const soldRawMaterialIds = [];
+			const soldRawMaterials = await manufacturerContract.methods.getProductRawMaterials(product.id).call();
+			for(let i = 0; i < soldRawMaterials.length; i++){
+				soldRawMaterialIds.push(soldRawMaterials[i].id);
+			}
+			console.log(soldRawMaterialIds);
+			await productNFTContract.methods.manufactureProduct(metadataHash, product.id, product.quantity, soldRawMaterialIds, product.manufacturingUser).send({ from: ethAccount, gas: 30000000 });
 			toast.dismiss(toastId);
 			toast.success(`Product manufactured successfully! \n\n Transaction completed through Ethereum Account: ${ethAccount} associated with E-mail ID: ${emailId}. \n\n Gas used in transaction: ${receipt.gasUsed} gwei.`);
 			await fetchProducts();
@@ -702,15 +709,56 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 		}
 	};
 
-	const handleViewNFT = async (productId) => {
+	const handleViewUnsoldProductNFT = async (productId) => {
 		try {
 			// const nft = await productNFTContract.methods.getProductNFT(productId).call();
 			// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
-			const nfts = await productNFTContract.methods.getProductNFT(productId).call();
-			navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${productId}` } });
+			const nfts = await productNFTContract.methods.getUnsoldProductNFT(productId).call();
+			if(nfts.length !== 0){
+				navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${productId}`, group: true } });
+			}
+			else{
+				navigate('/view-nft', { state: { nfts: [], heading: `Product Sold Out!`, group: false }});
+			}
 		}
 		catch (error) {
-			toast.error('Error fetching NFT. Please check the console.');
+			toast.error('Error fetching unsold product NFTs. Please check the console.');
+			console.log(error);
+		}
+	};
+
+	const handleViewSoldProductNFT = async (soldProductId) => {
+		try {
+			// const nft = await productNFTContract.methods.getProductNFT(productId).call();
+			// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
+			const nfts = await productNFTContract.methods.getSoldProductNFT(soldProductId).call();
+			if(nfts.length !== 0){
+				navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Sold Product ID: ${soldProductId}`, group: true } });
+			}
+			else{
+				navigate('/view-nft', { state: { nfts: [], heading: `Sold Product NFT not found!`, group: false }});
+			}
+		}
+		catch (error) {
+			toast.error('Error fetching sold product NFTs. Please check the console.');
+			console.log(error);
+		}
+	};
+
+	const handleViewFulfilledRequestProductNFT = async (request) => {
+		try {
+			// const nft = await productNFTContract.methods.getProductNFT(productId).call();
+			// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
+			const nfts = await productNFTContract.methods.getFulfilledRequestProductNFT(request.id).call();
+			if(nfts.length !== 0){
+				navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${request.product.id}`, group: true } });
+			}
+			else{
+				navigate('/view-nft', { state: { nfts: [], heading: `Product NFT not found!`, group: false }});
+			}
+		}
+		catch (error) {
+			toast.error('Error fetching NFTs. Please check the console.');
 			console.log(error);
 		}
 	};
@@ -796,7 +844,8 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 						onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
 					/>
 					<label> Choose Raw Materials: </label>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -834,11 +883,13 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							))}
 						</tbody>
 					</table>
+          </div>
 					<button type="submit">Add Product</button>
 				</form>
 			</div>}
 			{boughtRawMaterials.filter(soldRawMaterial => !soldRawMaterial.received).length ? (<><h3 className='sub-heading'>Bought Raw Materials</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -873,10 +924,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{boughtRawMaterials.filter(soldRawMaterial => soldRawMaterial.received).length ? (<><h3 className='sub-heading'>Received Raw Materials</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -959,11 +1012,13 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{
 				unsoldProducts.filter(product => !product.manufactured).length ? (<><h3 className='sub-heading'>Unmanufactured Products</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -994,11 +1049,13 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				unsoldProducts.filter(product => product.manufactured).length ? (<><h3 className='sub-heading'>Manufactured Products</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -1025,14 +1082,16 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>{String(product.weightPerUnit)} kg</td>
 									<td>{String(product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(product.id)} target="_blank">View NFT</a></td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{soldProducts.filter(soldProduct => !soldProduct.received).length ? (<><h3 className='sub-heading'>Pending Products</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -1067,7 +1126,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<td>{String(soldProduct.buyingUser.email)}</td>
 								<td>{String(Number(consumerTrustScores[soldProduct.buyingUser.ethAddress]) / 100000)}</td>
 								<td><a className='comment-link' onClick={() => handleViewRawMaterials(soldProduct.product.id)} target="_blank">View Raw Materials</a></td>
-								<td><a className='comment-link' onClick={() => handleViewNFT(soldProduct.product.id)} target="_blank">View NFT</a></td>
+								<td><a className='comment-link' onClick={() => handleViewSoldProductNFT(soldProduct.id)} target="_blank">View NFT</a></td>
 								<td><a className='comment-link' onClick={() => handleViewShippingDetails(soldProduct)} target="_blank">View Shipping Details</a></td>
 								<td>{
 									consumerComments[soldProduct.id]?.submitted ? (
@@ -1095,10 +1154,12 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{soldProducts.filter(soldProduct => soldProduct.received).length ? (<><h3 className='sub-heading'>Received Products</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -1136,7 +1197,7 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 								<td>{String(soldProduct.buyingUser.email)}</td>
 								<td>{String(Number(consumerTrustScores[soldProduct.buyingUser.ethAddress]) / 100000)}</td>
 								<td><a className='comment-link' onClick={() => handleViewRawMaterials(soldProduct.id)} target="_blank">View Raw Materials</a></td>
-								<td><a className='comment-link' onClick={() => handleViewNFT(soldProduct.id)} target="_blank">View NFT</a></td>
+								<td><a className='comment-link' onClick={() => handleViewSoldProductNFT(soldProduct.id)} target="_blank">View NFT</a></td>
 								<td><a className='comment-link' onClick={() => handleViewShippingDetails(soldProduct)} target="_blank">View Shipping Details</a></td>
 								<td><a className='comment-link' onClick={() => handleViewSoldProductComments(soldProduct.id)} target='_blank'>View Comments</a></td>
 								<td>{
@@ -1165,11 +1226,13 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 0).length ? (<><h3 className='sub-heading'>Pending Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -1204,18 +1267,20 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(request.product.id)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 									<td><button onClick={() => handleAcceptRequest(request.id)} className='table-button'>Accept Request</button>
 										<button className="table-button" onClick={() => handleRejectRequest(request.id)}>Reject Request</button></td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 1).length ? (<><h3 className='sub-heading'>Accepted Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -1249,16 +1314,18 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(request.product.id)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 2).length ? (<><h3 className='sub-heading'>Rejected Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -1292,16 +1359,18 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(request.product.id)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 3).length ? (<><h3 className='sub-heading'>Fulfilled Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -1335,12 +1404,13 @@ function ManufacturerDashboard({ mainContract, userManagementContract, RMSContra
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewFulfilledRequestProductNFT(request)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 		</div>
 	);

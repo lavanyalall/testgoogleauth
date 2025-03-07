@@ -78,7 +78,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			const currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(currRequests[i].product.manufacturingUser.ethAddress).call();
 			currManufacturerTrustScores[currRequests[i].product.manufacturingUser.ethAddress] = currManufacturerTrustScore;
 		}
-		setRequestedProductIds(new Set(currRequests.map(request => request.product.id)));
+		setRequestedProductIds(new Set(currRequests.filter(request => Number(request.status) == 0 || Number(request.status) == 1).map(request => request.product.id)));
 		setManufacturerTrustScores(currManufacturerTrustScores);
 	};
 
@@ -163,7 +163,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 				const currManufacturerTrustScore = await mainContract.methods.getUserTrustScore(currRequests[i].product.manufacturingUser.ethAddress).call();
 				currManufacturerTrustScores[currRequests[i].product.manufacturingUser.ethAddress] = currManufacturerTrustScore;
 			}
-			setRequestedProductIds(new Set(currRequests.map(request => request.product.id)));
+			setRequestedProductIds(new Set(currRequests.filter(request => Number(request.status) == 0 || Number(request.status) == 1).map(request => request.product.id)));
 			setManufacturerTrustScores(currManufacturerTrustScores);
 		} catch (error) {
 			toast.error('Error fetching products. Please check the console.');
@@ -186,18 +186,59 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 		}));
 	};
 
-	const handleViewNFT = async (productId) => {
-		try {
-			// const nft = await productNFTContract.methods.getProductNFT(productId).call();
-			// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
-			const nfts = await productNFTContract.methods.getProductNFT(productId).call();
-			navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${productId}` } });
-		}
-		catch (error) {
-			toast.error('Error fetching NFT. Please check the console.');
-			console.log(error);
-		}
-	};
+	const handleViewUnsoldProductNFT = async (productId) => {
+			try {
+				// const nft = await productNFTContract.methods.getProductNFT(productId).call();
+				// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
+				const nfts = await productNFTContract.methods.getUnsoldProductNFT(productId).call();
+				if(nfts.length !== 0){
+					navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${productId}`, group: true } });
+				}
+				else{
+					navigate('/view-nft', { state: { nfts: [], heading: `Product Sold Out!`, group: false }});
+				}
+			}
+			catch (error) {
+				toast.error('Error fetching unsold product NFTs. Please check the console.');
+				console.log(error);
+			}
+		};
+	
+		const handleViewSoldProductNFT = async (soldProductId) => {
+			try {
+				// const nft = await productNFTContract.methods.getProductNFT(productId).call();
+				// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
+				const nfts = await productNFTContract.methods.getSoldProductNFT(soldProductId).call();
+				if(nfts.length !== 0){
+					navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Sold Product ID: ${soldProductId}`, group: true } });
+				}
+				else{
+					navigate('/view-nft', { state: { nfts: [], heading: `Sold Product NFT not found!`, group: false }});
+				}
+			}
+			catch (error) {
+				toast.error('Error fetching sold product NFTs. Please check the console.');
+				console.log(error);
+			}
+		};
+	
+		const handleViewFulfilledRequestProductNFT = async (request) => {
+			try {
+				// const nft = await productNFTContract.methods.getProductNFT(productId).call();
+				// navigate('/view-nft', { state: { nfts: [nft], heading: `NFT for Product ID: ${productId}` } });
+				const nfts = await productNFTContract.methods.getFulfilledRequestProductNFT(request.id).call();
+				if(nfts.length !== 0){
+					navigate('/view-nft', { state: { nfts: nfts, heading: `NFT for Product ID: ${request.product.id}`, group: true } });
+				}
+				else{
+					navigate('/view-nft', { state: { nfts: [], heading: `Product NFT not found!`, group: false }});
+				}
+			}
+			catch (error) {
+				toast.error('Error fetching NFTs. Please check the console.');
+				console.log(error);
+			}
+		};
 
 	const handleRequestProduct = async (productId) => {
 		try {
@@ -230,17 +271,19 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			const password = AES.decrypt(encryptedPassword, process.env.REACT_APP_KEY).toString(enc.Utf8);
 			await web3.eth.personal.unlockAccount(ethAccount, password, 600);
 			const googleIdHash = web3.utils.sha3(googleId);
-			const productToken = await productNFTContract.methods.getProductNFT(request.product.id).call();
+			// const productToken = await productNFTContract.methods.getProductNFT(request.product.id).call();
 			// await productNFTContract.methods.buyProduct(productToken.tokenId, request.requestingUser).send({ from: ethAccount, gas: 30000000 });
-			await productNFTContract.methods.buyProduct(request.product.id, request.quantity, request.product.manufacturingUser.ethAddress, request.requestingUser).send({ from: ethAccount, gas: 30000000 });
 			const receipt = await consumerContract.methods.buyProduct(request.id).send({ from: ethAccount, gas: 30000000 });
-			const transactionRecipt = await web3.eth.getTransactionReceipt(receipt.transactionHash);
+			const transactionReceipt = await web3.eth.getTransactionReceipt(receipt.transactionHash);
 			const block = await web3.eth.getBlock(receipt.blockNumber);
 			const timestamp = block.timestamp;
-			const transactionStatus = Boolean(transactionRecipt.status);
-			const gasUsed = transactionRecipt.gasUsed;
+			const transactionStatus = Boolean(transactionReceipt.status);
+			const gasUsed = transactionReceipt.gasUsed;
 			const r = await consumerContract.methods.markProductAsSold(request.id, transactionStatus, timestamp, gasUsed, googleIdHash).send({ from: ethAccount, gas: 30000000 });
 			const transactionId = r.events.getTransactionId.returnValues.transactionId;
+			const soldProductId = r.events.getSoldProductId.returnValues.soldProductId;
+			await productNFTContract.methods.buyProduct(request.product.id, soldProductId, request.id, request.quantity, request.product.manufacturingUser.ethAddress, request.requestingUser).send({ from: ethAccount, gas: 30000000 });
+			
 			const srlogindata = JSON.stringify({
 				"email": process.env.REACT_APP_SHIPROCKET_EMAIL,
 				"password": process.env.REACT_APP_SHIPROCKET_PASSWORD
@@ -478,7 +521,8 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 			<DashboardHeader web3={web3} mainContract={mainContract} userManagementContract={userManagementContract} productNFTContract={productNFTContract} username={username} ethAccount={ethAccount} logoutUser={logoutUser} heading={"Consumer Dashboard"} state={{ boughtProducts, receivedProducts, allProducts, requests, manufacturerComments, productComments, manufacturerTrustScores }} />
 			{
 				allProducts.filter(product => !requestedProductIds.has(product.id)).length > 0 ? (<><h3 className='sub-heading'>Request Product</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -518,19 +562,21 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(Number(manufacturerTrustScores[product.manufacturingUser.ethAddress]) / 100000)}</td>
 									<td><a className='comment-link' onClick={() => handleViewManufacturerComments(product.manufacturingUser)} target="_blank">View Manufacturer Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewProductComments(product.id)} target="_blank">View Product Comments</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(product.id)} target="_blank">View NFT</a></td>
 									{/* <td><input type="number" value={productQuantities?.product.id} onChange={(e) => handleProductQuantityChange(e, product.id, parseInt(product.quantity))} /></td> */}
 									<td><input type="number" value={productQuantities?.product?.id} onChange={(e) => handleProductQuantityChange(e, product.id, parseInt(product.quantity))} /></td>
 									<td><button className="table-button" onClick={() => handleRequestProduct(product.id)}>Request Product</button></td>
 								</tr>
 							))}
 						</tbody>
-					</table></>
+					</table>
+          </div></>
 				) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 0).length ? (<><h3 className='sub-heading'>Pending Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -566,16 +612,18 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewManufacturerComments(request.product.manufacturingUser)} target="_blank">View Manufacturer Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewProductComments(request.product.id)} target="_blank">View Product Comments</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(request.product.id)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 1).length ? (<><h3 className='sub-heading'>Accepted Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -612,18 +660,20 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
 									<td><a className='comment-link' onClick={() => handleViewManufacturerComments(request.product.manufacturingUser)} target="_blank">View Manufacturer Comments</a></td>
 									<td><a className='comment-link' onClick={() => handleViewProductComments(request.product.id)} target="_blank">View Product Comments</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewUnsoldProductNFT(request.product.id)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 									<td><button className="table-button" onClick={() => handleBuyProduct(request)}>Buy Product</button></td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 
 			{
 				requests.filter(request => Number(request.status) === 2).length ? (<><h3 className='sub-heading'>Rejected Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -658,11 +708,13 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				requests.filter(request => Number(request.status) === 3).length ? (<><h3 className='sub-heading'>Fulfilled Requests</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -694,16 +746,18 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>Rs. {String(request.product.pricePerUnit)}</td>
 									<td>{String(request.product.description)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(request.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(request.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewFulfilledRequestProductNFT(request)} target="_blank">View NFT</a></td>
 									<td>{String(request.quantity)}</td>
 								</tr>
 							))}
 						</tbody>
-					</table></>) : (<></>)
+					</table>
+          </div></>) : (<></>)
 			}
 			{
 				boughtProducts.length ? (<><h3 className='sub-heading'>Bought Products</h3>
-					<table>
+					<div className="table-cont">
+            <table>
 						<thead>
 							<tr>
 								<th>ID</th>
@@ -738,17 +792,19 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 									<td>{String(boughtProduct.product.manufacturingUser.email)}</td>
 									<td>{String(Number(manufacturerTrustScores[boughtProduct.product.manufacturingUser.ethAddress]) / 100000)}</td>
 									<td><a className='comment-link' onClick={() => handleViewRawMaterials(boughtProduct.product.id)} target="_blank">View Raw Materials</a></td>
-									<td><a className='comment-link' onClick={() => handleViewNFT(boughtProduct.product.id)} target="_blank">View NFT</a></td>
+									<td><a className='comment-link' onClick={() => handleViewSoldProductNFT(boughtProduct.id)} target="_blank">View NFT</a></td>
 									<td><a className='comment-link' onClick={() => handleViewShippingDetails(boughtProduct)} target="_blank">View Shipping Details</a></td>
 									<td><button className="table-button" onClick={() => handleMarkAsReceived(boughtProduct)}>Mark as Received</button></td>
 								</tr>
 							))}
 						</tbody>
 					</table>
+          </div>
 				</>) : (<></>)
 			}
 			{receivedProducts.length ? (<><h3 className='sub-heading'>Received Products</h3>
-				<table>
+				<div className="table-cont">
+            <table>
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -786,7 +842,7 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 								<td>{String(receivedProduct.product.manufacturingUser.email)}</td>
 								<td>{String(Number(manufacturerTrustScores[receivedProduct.product.manufacturingUser.ethAddress]) / 100000)}</td>
 								<td><a className='comment-link' onClick={() => handleViewRawMaterials(receivedProduct.product.id)} target="_blank">View Raw Materials</a></td>
-								<td><a className='comment-link' onClick={() => handleViewNFT(receivedProduct.product.id)} target="_blank">View NFT</a></td>
+								<td><a className='comment-link' onClick={() => handleViewSoldProductNFT(receivedProduct.id)} target="_blank">View NFT</a></td>
 								<td><a className='comment-link' onClick={() => handleViewShippingDetails(receivedProduct)} target="_blank">View Shipping Details</a></td>
 								{/* <td>{
 									manufacturerComments[receivedProduct.id]?.submitted ? (
@@ -837,7 +893,8 @@ const ConsumerDashboard = ({ web3, userManagementContract, consumerContract, man
 							</tr>
 						))}
 					</tbody>
-				</table></>) : (<></>)
+				</table>
+          </div></>) : (<></>)
 			}
 		</div>
 	);

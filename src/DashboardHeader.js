@@ -57,7 +57,7 @@ function DashboardHeader({ heading, username, ethAccount, mainContract, userMana
 				{transactions.length > 0 && <button onClick={() => navigate('/transactions', { state: { heading: `Transactions of User: ${username}`, transactions: transactions } })} type="submit" className='transactions home'>Transactions</button>}
 				{sentComments.length > 0 && <button onClick={() => navigate('/comments', { state: { heading: `Comments Sent by User: ${username}`, comments: sentComments } })} type="submit" className='transactions home'>Sent Comments</button>}
 				{receivedComments.length > 0 && <button onClick={() => navigate('/comments', { state: { heading: `Comments Received by User: ${username}`, comments: receivedComments } })} type="submit" className='transactions home'>Received Comments</button>}
-				{productTokens.length > 0 && <button onClick={() => navigate('/view-nft', { state: { heading: `NFTs of User: ${username}`, nfts: productTokens } })} type="submit" className='transactions home'>Owned NFTs</button>}
+				{productTokens.length > 0 && <button onClick={() => navigate('/view-nft', { state: { heading: `NFTs of User: ${username}`, nfts: productTokens, group: true } })} type="submit" className='transactions home'>Owned NFTs</button>}
 			</div>
 		</>
 	);

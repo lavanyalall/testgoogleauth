@@ -23,6 +23,7 @@ contract Consumer {
 	mapping(bytes32 => uint256) private manufacturerToConsumerComments;
 	mapping(bytes32 => uint256) private consumerToManufacturerComments;
 	event getTransactionId(uint256 transactionId);
+	event getSoldProductId(uint256 soldProductId);
 
 	function buyProduct(uint256 requestId) public {
 		// require( main.getUser(googleIdHash).registered, "User not registered");
@@ -69,6 +70,7 @@ contract Consumer {
             manufacturer.removeProduct(productId);
 		}	
 		emit getTransactionId(newTransaction.id);
+		emit getSoldProductId(currSoldProductCtr);
 	}
 
 	function receiveProduct(uint256 soldProductId) public {

@@ -301,6 +301,7 @@ function App() {
 						ethAccount = {ethAccount}
 						mainContract = {mainContract}
 						userManagementContract = {userManagementContract}
+						RMSContract = {rawMaterialSupplierContract}
 						/>
 					}
 				/>
