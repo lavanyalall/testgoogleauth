@@ -52,7 +52,7 @@ function Transactions({ mainContract, userManagementContract, web3, ethAccount }
 	};
 
 	return (<>
-		{transactions.length ? (<><h3 className='sub-heading'>{heading}</h3>
+		{transactions.length ? (<><h3 className='page-heading'>{heading}</h3>
 			<div className="table-cont">
             <table>
 				<thead>

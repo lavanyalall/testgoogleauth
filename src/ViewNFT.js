@@ -44,7 +44,7 @@ function ViewNFT() {
 	}, []);
 
 	return (<>
-		{group && groupedNFTs ? (<><h3 className='sub-heading'>{heading}</h3>
+		{group && groupedNFTs ? (<><h3 className='page-heading'>{heading}</h3>
 			<div className="table-cont">
             <table>
 				<thead>
@@ -86,7 +86,7 @@ function ViewNFT() {
 			</table>
           </div></>) : (<></>)
 		}
-		{!group && data.length ? (<><h3 className='sub-heading'>{heading}</h3>
+		{!group && data.length ? (<><h3 className='page-heading'>{heading}</h3>
 			<div className="table-cont">
             <table>
 				<thead>

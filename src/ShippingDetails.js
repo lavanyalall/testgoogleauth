@@ -6,7 +6,7 @@ function ShippingDetails() {
 	const sd = location.state?.shippingDetails || [];
 	const heading = location.state?.heading || '';
 	return (<>
-		{sd.length ? (<><h3 className='sub-heading'>{heading}</h3>
+		{sd.length ? (<><h3 className='page-heading'>{heading}</h3>
 			<div className="table-cont">
             <table>
 				<thead>

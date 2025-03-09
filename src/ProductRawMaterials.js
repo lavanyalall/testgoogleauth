@@ -74,7 +74,7 @@ function ProductRawMaterials({mainContract, userManagementContract, RMSContract,
 		};
 
 	return (<>
-		{rawMaterials.length ? (<><h3 className='sub-heading'>{heading}</h3>
+		{rawMaterials.length ? (<><h3 className='page-heading'>{heading}</h3>
 			<div className="table-cont">
             <table>
 				<thead>

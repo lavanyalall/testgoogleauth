@@ -49,7 +49,7 @@ function Comments({ mainContract, userManagementContract, web3, ethAccount }) {
     <>
       {comments.length ? (
         <>
-          <h3 className="sub-heading">{heading}</h3>
+          <h3 className="page-heading">{heading}</h3>
           <div className="table-cont">
             <table>
               <thead>

@@ -10,7 +10,7 @@
   "sourceMap": "104:2468:24:-:0;;;;;;;;;;;;;;;-1:-1:-1;;;104:2468:24;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "104:2468:24:-:0;;;;;;;;",
   "source": "// SPDX-License-Identifier: MIT\r\npragma solidity >=0.4.22 <0.9.0;\r\npragma experimental ABIEncoderV2;\r\n\r\nlibrary SharedStructs {\r\n    struct User {\r\n        uint256 id;\r\n        address ethAddress;\r\n\t\tstring email;\r\n        string username;\r\n        string location;\r\n        uint8 role; // 0: Raw Material Supplier, 1: Manufacturer, 2: Consumer\r\n        bool registered;\r\n    }\r\n\t\r\n\tstruct Shipping{\r\n\t\tuint256 pricePerUnit;\r\n\t\tuint256 weightPerUnit;\r\n\t\tuint256 quantity;\r\n\t\tuint256 totalPrice;\r\n\t\tuint256 totalWeight;\r\n\t\tstring shippingPartner;\r\n\t\tuint256 partnerRating;\r\n\t\tuint256 estimatedTimeToDelivery;\r\n\t\tuint256 shippingCharges;\r\n\t}\r\n\t\r\n    struct Transaction{\r\n\t\tuint256 id;\r\n\t\tUser from;\r\n\t\tUser to;\r\n\t\tuint256 timestamp;\r\n\t\tuint256 pricePerUnit;\r\n\t\tuint256 weightPerUnit;\r\n\t\tuint256 quantity;\r\n\t\tuint256 gasUsed;\r\n\t\tstring description;\r\n\t\tbool status;\r\n\t}\r\n\r\n    struct RawMaterial{\r\n\t\tuint256 id;\r\n\t\tuint256 timestamp;\r\n\t\tstring name;\r\n\t\tuint256 quantity;\r\n\t\tstring description;\r\n\t\tuint256 pricePerUnit;\r\n\t\tuint256 weightPerUnit;\r\n\t\tUser registeringUser;\r\n\t}\r\n\r\n\tstruct SoldRawMaterial{\r\n\t\tuint256 id;\r\n\t\tRawMaterial rawMaterial;\r\n\t\tUser buyingUser;\r\n\t\tTransaction transaction;\r\n\t\tuint256 receivedTimestamp;\r\n\t\tbool received;\r\n\t}\r\n\r\n    struct Product {\r\n\t\tuint256 id;\r\n\t\tuint256 timestamp;\r\n        string name;\r\n\t\tuint256 quantity;\r\n\t\tstring description;\r\n\t\tuint256 pricePerUnit;\r\n\t\tuint256 weightPerUnit;\r\n\t\tUser manufacturingUser;\r\n\t\tuint256 manufacturedTimestamp;\r\n\t\tbool manufactured;\r\n    }\r\n\r\n\tstruct SoldProduct{\r\n\t\tuint256 id;\r\n\t\tProduct product;\r\n\t\tUser buyingUser;\r\n\t\tTransaction transaction;\r\n\t\tuint256 receivedTimestamp;\r\n\t\tbool received;\r\n\t}\r\n\r\n    struct Request{\r\n\t\tuint256 id;\r\n\t\tProduct product;\r\n\t\tUser requestingUser;\r\n\t\tuint256 timestamp;\r\n\t\tuint256 quantity;\r\n\t\tuint8 status; // 0: pending, 1: accepted, 2: rejected 3: fulfilled\r\n\t}\r\n\r\n\tstruct Comment{\r\n\t\tuint256 id;\r\n\t\tuint256 timestamp;\r\n\t\tUser from;\r\n\t\tUser to;\r\n\t\tstring comment;\r\n\t\tuint256 rating;\r\n\t}\r\n\r\n\tfunction uint2str(uint _i) internal pure returns (string memory _uintAsString) {\r\n        if (_i == 0) {\r\n            return \"0\";\r\n        }\r\n        uint j = _i;\r\n        uint len;\r\n        while (j != 0) {\r\n            len++;\r\n            j /= 10;\r\n        }\r\n        bytes memory bstr = new bytes(len);\r\n        uint k = len;\r\n        while (_i != 0) {\r\n            k = k-1;\r\n            uint8 temp = (48 + uint8(_i - _i / 10 * 10));\r\n            bytes1 b1 = bytes1(temp);\r\n            bstr[k] = b1;\r\n            _i /= 10;\r\n        }\r\n        return string(bstr);\r\n    }\r\n}",
-  "sourcePath": "C:\\Users\\hl-laptop\\Desktop\\testgoogleauth\\contracts\\SharedStructs.sol",
+  "sourcePath": "C:\\Users\\lavan\\OneDrive\\Desktop\\testgoogleauth\\contracts\\SharedStructs.sol",
   "ast": {
     "absolutePath": "project:/contracts/SharedStructs.sol",
     "exportedSymbols": {
@@ -3346,33 +3346,189 @@
     "version": "0.8.21+commit.d9974bed.Emscripten.clang"
   },
   "networks": {
-    "1741360590788": {
+    "5777": {
       "events": {},
       "links": {},
-      "address": "0x155793279434ba1f4080CB5259A59BaB35290862",
-      "transactionHash": "0x3328203d9296376ac90922eb854f2977d641998f76d26f0878ec17b952434690"
+      "address": "0xbE5e2D1dED36B5dA27f7532d42c5C1872bb8A359",
+      "transactionHash": "0x200bf52d8ad8175249ba3761c7386c1030cf9874bb9427607588848fe98b69a9"
     },
-    "1741383391249": {
+    "1740160716896": {
       "events": {},
       "links": {},
-      "address": "0x31e11856452E95EbF446A08DcB39B6D306b24Ea0",
-      "transactionHash": "0xa74c59434fbcbfc4bae29fc01fbfacc26a05589d539e375d6cc601000cfbd155"
+      "address": "0x470c115068831741a1A989376d2720ae3B2c9E16",
+      "transactionHash": "0xa028c03930fc2f1a9e4404afc5947a6706c1017eea8d8d978e0fe3eed5645513"
     },
-    "1741385378056": {
+    "1740161647796": {
       "events": {},
       "links": {},
-      "address": "0x3f93B0A07fA27cD865E405260923F4F65B940b6E",
-      "transactionHash": "0x1dced81a283bb64c572cd0836bd8863d89ba0df391f270260577cabb1e18e6de"
+      "address": "0x724f4A5CEc116E6A5Aa3AAab3576840450A66BfA",
+      "transactionHash": "0x0a35a11763eed2c6c528eeb1a3cc59bedfb212cbc3d15453f7d12822a6645dca"
     },
-    "1741385528836": {
+    "1740220023715": {
       "events": {},
       "links": {},
-      "address": "0x5270BFC402D1528a13ec5051DDa18256f5EF3342",
-      "transactionHash": "0xd8e303007793cdd7c718c02dcb8a7612ccecefd71d9d7d6056a6eb3d1aa9782d"
+      "address": "0x7e56A48EA348075127A8fB550c3Ab8903a1D8520",
+      "transactionHash": "0x22a6d8a3067dcbcc54166c05365e32ffb875a7b513c9fb6a45c6ca5d6094ce34"
+    },
+    "1740221372213": {
+      "events": {},
+      "links": {},
+      "address": "0x02d700C9192e07bdA68295DD42e07EC1896A470B",
+      "transactionHash": "0x211d69905ac20e364e5c6da7e274ba3d3a9895a77f97195162f6d6b49b924ca9"
+    },
+    "1740222735397": {
+      "events": {},
+      "links": {},
+      "address": "0x3F1E0F591BD3821bB452771F74ED8735abcF9044",
+      "transactionHash": "0xbd23d10d18818c85b768fc42a7d9ff27a6af2db75abe8d70a9c3d03fd1309f36"
+    },
+    "1740224434526": {
+      "events": {},
+      "links": {},
+      "address": "0x4F368d300117ba3349310Bb4042C4C2f4029ade4",
+      "transactionHash": "0x2df96a53bdb72c1b16fd38f3d23351bee98d60bfc120c01f61359727a96a43b4"
+    },
+    "1740225820751": {
+      "events": {},
+      "links": {},
+      "address": "0xD9Dfc21de1C633C5053390673557aC19Efd335b1",
+      "transactionHash": "0x6e2ef688823787fae3c730340f9321b0a10c22d6988ab126b2630b72e1eec72b"
+    },
+    "1740312961388": {
+      "events": {},
+      "links": {},
+      "address": "0xDe9C35D4A540071aA6f5e7Ab8AF3387214269248",
+      "transactionHash": "0xee87cf5925ae0532ed3490e7473c5e822c29301785d2276defb8062f4d082857"
+    },
+    "1740332752504": {
+      "events": {},
+      "links": {},
+      "address": "0xf6F3298DDC13deB8DDA4d812a7933acD86b7906F",
+      "transactionHash": "0xae026b9f8c209d1769a52c0a2a34cb6424f8dd3138ed1d0c73cafcdd1a8eeaba"
+    },
+    "1740417009734": {
+      "events": {},
+      "links": {},
+      "address": "0xE1444214CbaFbc0abb2De3b1b6C4317074DdDc7B",
+      "transactionHash": "0x1d413bbefb17d91a3b670d0eef56eed4555b4260939d8344ae7b7a02f114c3dd"
+    },
+    "1740475380254": {
+      "events": {},
+      "links": {},
+      "address": "0xe7E0Aa846475677D53dbF616Ed1a39Cb7585Add7",
+      "transactionHash": "0x3102cb67d1450408f9cf56a23bc8275ff0c6dbed1cdcb55bb52c7bea9cd5bb35"
+    },
+    "1740500315217": {
+      "events": {},
+      "links": {},
+      "address": "0x4a40B79f560aa63e13e5cA83d1ed8Ff6C757181e",
+      "transactionHash": "0xb3ef7d2cdbc7db13b34ab600e48c689315a8104b96cf7297cfcb2ebbeafdc466"
+    },
+    "1740503199034": {
+      "events": {},
+      "links": {},
+      "address": "0xd3B2D4d972fa06fEa00158b8681B9D9462d5082c",
+      "transactionHash": "0x59720a8e93a31c5a3369c7d50f7dfa040751b4767234dae865e4f17b186ca187"
+    },
+    "1740555930723": {
+      "events": {},
+      "links": {},
+      "address": "0xCA9f43a67c5e7a96007D4e36EB6457d025Fa5023",
+      "transactionHash": "0xec08261e8cfd856aa33d271af36215c8a399314021347d324d3f4dcac795a6f2"
+    },
+    "1740581750657": {
+      "events": {},
+      "links": {},
+      "address": "0x43001337d046dD976D99A5F835c973D55Ff2ad84",
+      "transactionHash": "0x4b94b9242740e28228a8cbef4f55d5d6d6c5734e34e439307484e06270fea976"
+    },
+    "1740833256402": {
+      "events": {},
+      "links": {},
+      "address": "0xF2C85A8622D1242675379A95ef70434a8f8aDfB1",
+      "transactionHash": "0x76f1cee27d10e498cb78cdc23eed6025fb0dd5b7761dc06036f0069ff5e5c0b9"
+    },
+    "1740836788357": {
+      "events": {},
+      "links": {},
+      "address": "0x947c7F7a4E799efa959F8351A29261933f581360",
+      "transactionHash": "0x42df30cb666034a1a98f8bc78e7a165b2bf12b187b71f38a630d06b5c8c93e96"
+    },
+    "1740858575795": {
+      "events": {},
+      "links": {},
+      "address": "0x60edC56a1Efe4ce1a77F04bb13Aa3Ed79011235C",
+      "transactionHash": "0xdda0b15d9dddd016417e7b4e89496dce5526c04b66866315ea3f09cfa3fe9e74"
+    },
+    "1740865008118": {
+      "events": {},
+      "links": {},
+      "address": "0xDB3C575C81369adb1814dA2Bef6f004698A28F4b",
+      "transactionHash": "0xb261f1b927761cbc5b60d4a7dcc0d0f341921a4cfded2814fcd2cbf30263976c"
+    },
+    "1740918306186": {
+      "events": {},
+      "links": {},
+      "address": "0x8764f036be169A23AA361F7133b04d711d62ceF9",
+      "transactionHash": "0x7117eaf88a996cbc95bfef07739c6406bcbe0d51f8a649b063e3affd517b53e6"
+    },
+    "1740919126132": {
+      "events": {},
+      "links": {},
+      "address": "0xa0D8C62Ba46F8286e1b53e59090aC46d3247C8A0",
+      "transactionHash": "0x2960cc56a18984f6fec8dafd5c476e51a1ac29db476d47aeec41f97308a4da6a"
+    },
+    "1741022673766": {
+      "events": {},
+      "links": {},
+      "address": "0x1B65CF194e0edFAAa679fDF0C8c6820ca5c39C38",
+      "transactionHash": "0x415f51adff02caf2a17d9e60128f2d31ce383e0a31afc6bd6f1e13b1cc10b787"
+    },
+    "1741023308289": {
+      "events": {},
+      "links": {},
+      "address": "0x04aC1b4f8c65e68D766501bb8D5b30cd16937ebf",
+      "transactionHash": "0x0e37d32dde789c6e679fea86e52fa316dabf5e48ca764120dec60670309e7525"
+    },
+    "1741112303063": {
+      "events": {},
+      "links": {},
+      "address": "0x8AFf0f9bb3966EB73be74451D7BB378A097bb4D6",
+      "transactionHash": "0x187f89cd827ae8001ade56d52c9d854bd4c9e692e8c3afdd3a6061265c3e6b71"
+    },
+    "1741185355768": {
+      "events": {},
+      "links": {},
+      "address": "0x2663006aD45a57c1A55430A593543096d8eCe2b7",
+      "transactionHash": "0xd4d94450bfd889fd5bd32a0211530214f435b9576a4559dfb3c4b0d05fe3d61a"
+    },
+    "1741196366258": {
+      "events": {},
+      "links": {},
+      "address": "0x02B587482AD2daCbF1543F0CB470dFD9387bc748",
+      "transactionHash": "0xe285caaacfad6ea0640cc513b1b2c9d630bcc5b4e8c9f3b5333ac721d80e66ef"
+    },
+    "1741274432057": {
+      "events": {},
+      "links": {},
+      "address": "0xc8daE3E1F298AA190e94b04B8d7B03CbdD3d715F",
+      "transactionHash": "0x4ffb27a34406cb3e6469d0562fe90caa850dc62620a2f88cfeddbf19f298387f"
+    },
+    "1741521693715": {
+      "events": {},
+      "links": {},
+      "address": "0x10c72d3597306Fbb5B63a7fC5Bb4A417B567745e",
+      "transactionHash": "0x8593d584167b8d7229e1cb37714f89781dd54436d5da5ac0aeafc18753abbfb9"
+    },
+    "1741521999814": {
+      "events": {},
+      "links": {},
+      "address": "0x70F459F596830Bb43078b78BB11261df89F142E3",
+      "transactionHash": "0x9e5056f32c122099888175a3b21a27b6188cbd28f958846997451df6871e83f6"
     }
   },
   "schemaVersion": "3.4.16",
-  "updatedAt": "2025-03-07T22:13:15.793Z",
+  "updatedAt": "2025-03-09T12:07:46.029Z",
   "networkType": "ethereum",
   "devdoc": {
     "kind": "dev",
